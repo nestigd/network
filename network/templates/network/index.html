@@ -1,4 +1,8 @@
 {% extends "network/layout.html" %}
+{% load static %}
+
+
+
 
 {% block body %}
     
@@ -26,4 +30,8 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/index.js' %}"></script>
 {% endblock %}
