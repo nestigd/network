@@ -3,8 +3,13 @@ document.addEventListener('DOMContentLoaded', function (){
 
     // When the "share" button of the new post is clicked, call a function to send the post to the backend
     document.querySelector('#newpost_share').onclick = () => {
-         alert('clicked');
+         submitpost();
         }
 
 });
 
+
+// sends to backend: body of text
+function submitpost () {
+    console.log('clicked');
+}
