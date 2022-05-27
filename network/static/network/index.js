@@ -13,3 +13,13 @@ document.addEventListener('DOMContentLoaded', function (){
 function submitpost () {
     console.log('clicked');
 }
+
+function getPost(filter){
+    
+    fetch(`posts/${filter}`)
+    .then(response => response.json())
+    .then(data => {
+        data.forEach(makePost, this);
+    });
+
+}

@@ -6,6 +6,7 @@ from hashlib import new
 from http import HTTPStatus
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
+from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -114,13 +115,13 @@ def register(request):
 
 
 # this API will send post objects as JSON.abs
-# parameters needed:kk
+# filters needed:
 # 'filter' : all, followed, user
 
-def posts (request, parameter):
+def posts (request, filter):
 
     # TODO: GET ALL POSTS
-    if parameter == 'all':
+    if filter == 'all':
         
         logger.info("requested all posts")
         posts = Post.objects.all()        
@@ -130,6 +131,6 @@ def posts (request, parameter):
 
     # TODO: GET POSTS OF A SPECIFIC USER
 
-    posts = posts.order_by
+    posts = posts.order_by("timestamp").all()
 
-    pass
+    return JsonResponse([post.serialize() for post in posts], safe=False)
