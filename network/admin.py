@@ -4,10 +4,13 @@ from .models import User, Post
 # Register your models here.
 
 
-class MyModelAdmin(admin.ModelAdmin):
-    list_display = ('timestamp')
-    # display datetime when you edit comments
-    readonly_fields = ('timestamp',)
+#this will personalize how the model is displayed in the admin page
+class PostAdmin(admin.ModelAdmin):
+    
+    #Creates new colums with the information below when you are in any particular model page
+    list_display = ('id', 'body' , 'timestamp', 'edited_on')
+    readonly_fields = ('timestamp','edited_on')
+   
 
 admin.site.register(User)
-admin.site.register(Post)
+admin.site.register(Post, PostAdmin)
