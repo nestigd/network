@@ -8,18 +8,20 @@ document.addEventListener('DOMContentLoaded', function (){
 
 });
 
-
-// sends to backend: body of text
-function submitpost () {
-    console.log('clicked');
+// TODO: function to make a new child div displaying every post
+function makePostDiv(post) {
+    const id = post.id;
+    
 }
 
+// TODO: AJAX request to get posts from backend
+// TODO: needs to support the following filters: 'all', 'followed', '{user_id}'
 function getPost(filter){
     
     fetch(`posts/${filter}`)
     .then(response => response.json())
     .then(data => {
-        data.forEach(makePost, this);
+        data.forEach(makePostDiv, this);
     });
 
 }
