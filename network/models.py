@@ -16,3 +16,16 @@ class Post(models.Model):
     
     def __str__ (self):
         return f"{self.id} - {self.poster.username} - {self.body[:8]}"
+
+    def serialize(self):
+        return {
+            "id" : self.id,
+            "poster" : self.poster.username,
+            "body" : self.body,
+            "likes" : self.likes.all().count(),
+            "timestamp": self.timestamp,
+            "edited_on" : self.edited_on,
+        }
+
+    def is_valid_post (self):
+        return self.body != ""  

@@ -1,3 +1,7 @@
+import logging
+logger = logging.getLogger('django')
+
+
 from hashlib import new
 from http import HTTPStatus
 from django.contrib.auth import authenticate, login, logout
@@ -10,7 +14,51 @@ from .models import User, Post
 
 
 def index(request):
-    return render(request, "network/index.html")
+
+    # this returns the main page of the website
+    if request.method == 'GET':
+        return render(request, "network/index.html")
+
+
+
+    # this handles the submission of a new post by a registered user.
+    if request.method == 'POST' and request.user.is_authenticated:
+
+        try:
+            # create the new post
+            user = request.user
+            post_text = request.POST.get("text")
+            p = Post(poster=user,body = post_text)
+
+            # just some console logs to help with debugging... self explainatory, I know...
+            logger.debug(f"user: {user} body {post_text}")
+            logger.debug (p.is_valid_post())
+            logger.debug(f"object {p}")
+
+            # run tests on new posts before saving
+            if not p.is_valid_post():
+                
+                # inform user that the post wasn't succesfully saved
+                return render(request, "network/index.html", {
+                    'context' : "Sorry! Your post wasn't saved because an exception has occurred. Please inform an admin",
+                    'color' : "red"
+                })
+
+            # if all tests pass, save the data and render the index page informing the user that the post was saved.
+            p.save()
+            return render(request, "network/index.html", {
+                'context' : 'Post shared!',
+                'color' : "green"
+            })
+
+        # exception handler, just in case
+        except:
+            return HttpResponse("unexpected exception occured, please inform an admin")
+
+        
+
+
+
 
 
 def login_view(request):
@@ -65,40 +113,23 @@ def register(request):
         return render(request, "network/register.html")
 
 
-# New posts will be added through this view
-def post (request):
+# this API will send post objects as JSON.abs
+# parameters needed:kk
+# 'filter' : all, followed, user
 
-    print(request.method)
-    # Make sure that only post requests are processed.abs
-    if request.method != 'POST':
-        # Tell the user: result NG by showing a message at the top of the page
-        return render(request, "network/index.html", {
-            'context' : 'request method was not POST',
-            'color' : "red"
+def posts (request, parameter):
 
-        })
-
-    # store the data from the request in variables.
-    user = request.user
-    post_text = request.POST.get("text")
-
-    # create the post object and save it
-    try:
-        p = Post(poster=user,body = post_text)
-        p.save()
-
-        # ALL OK! Tell the user!
-        return render(request, "network/index.html", {
-            'context' : 'Post shared!',
-            'color' : "green"
-        })
-
-    except:
-        # something went wrong. Tell the user to call an admin
-        return render(request, "network/index.html", {
-            'context' : 'Sorry! An exception has occurred. Please inform an admin',
-            'color' : "red"
-
-        })
+    # TODO: GET ALL POSTS
+    if parameter == 'all':
         
-    
+        logger.info("requested all posts")
+        posts = Post.objects.all()        
+        pass
+
+    # TODO: GET POSTS OF ALL FOLLOWED USERS
+
+    # TODO: GET POSTS OF A SPECIFIC USER
+
+    posts = posts.order_by
+
+    pass
