@@ -29,3 +29,11 @@ class Post(models.Model):
 
     def is_valid_post (self):
         return self.body != ""  
+
+class Following(models.Model):
+    follower: models.ForeignKey("User", on_delete = models.CASCADE, related_name = "followed")
+    followed: models.ForeignKey("User", on_delete = models.CASCADE, related_name= "followers")
+    
+    def __str__(self):
+        return f"{self.follower} -> {self.followed}"
+        
