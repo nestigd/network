@@ -7,7 +7,7 @@
 {% block body %}
     
     {% comment "" %}USER PROFILE INFO WILL BE DISPLAYED HERE{% endcomment %}
-    <h1>USER WILL BE DISPLAYED HERE</h1>
+    <h1>{{profile_user.username}}'s profile</h1>
 
 
     {% if user.is_authenticated %}    
@@ -15,7 +15,8 @@
             TODO: FOLLOW UNFOLLOW BUTTON
         {% endcomment %}        
     {%endif%}        
-        
+        <button id="follow">FOLLOW / UNFOLLOW</button>
+        <HR></HR>
         <div id= "post_container">
             <input type="hidden" id="page" value = {{profile_user.id}}>
 
@@ -26,5 +27,5 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'network/index.js' %}"></script>
+    <script src="{% static 'network/user.js' %}"></script>
 {% endblock %}

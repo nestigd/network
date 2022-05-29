@@ -2,27 +2,21 @@
 const postsAPIurl = "http://127.0.0.1:8000/posts"
 const followAPIurl = "http://127.0.0.1:8000/follow"
 
-// Wait for document to load before adding any event listeners to the page
+
+
+// WAIT FOR PAGE TO GET LOADED
 document.addEventListener('DOMContentLoaded', function (){
 
-    // the page variable is porvided by the url. It can be 'all', 'followed' or an user
+    // the page variable is provided by the url. It can be 'all', 'followed' or an user
     let page = document.querySelector('#page').value;
     // use the page value as filtering variable to get the related posts
     getPost(`${page}`);
 
-    // When the "share" button of the new post is clicked, call a function to send the post to the backend
-    if (document.querySelector('#newpost_share') != undefined){
-        document.querySelector('#newpost_share').onclick = () => {
-            submitpost();
-       }
-    };
-    
-
-    document.querySelector('#posts_all').onclick = () => {
-        console.log("clicked link");
-        return false;
+    document.querySelector('#follow').onclick = function () {
+        console.log("click");
+        changeFollowStatus(`${page}`);
     }
-
+   
 });
 
 
@@ -62,3 +56,25 @@ function getPost(filter){
         } );
     });
 }
+
+function changeFollowStatus (userToFollow){
+
+    if (isNaN(userToFollow)){
+        console.log("userToFollow variable is not a number.");
+        return false
+    }
+
+    fetch(`${followAPIurl}`,{
+        method : 'post',
+        body : {
+            "userToFollow" : JSON.stringify(userToFollow),
+        }
+    })
+    .then(response => response.text())
+    .then(text => {
+        console.log(text);
+        alert(text);
+    })
+
+}
+

@@ -1,3 +1,4 @@
+import json
 from hashlib import new
 from http import HTTPStatus
 from django.contrib.auth import authenticate, login, logout
@@ -7,11 +8,14 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from .models import User, Post
+from django.views.decorators.csrf import csrf_exempt
 import logging
+
 logger = logging.getLogger('django')
 
 # this is the main page of the website. It can be visited even if the user is not logged in.
-# the view takes an argument that will be passed down as context to the HTML and will be referenced by JS to fetch the correect posts.
+# the view takes an argument that can be "all" or "following"...
+# that will be passed down as context to the HTML and will be referenced by JS to fetch the correect posts.
 def index(request, page):
     logger.info(f"got {request.method} request")
     logger.info(f"page filter{page}")
@@ -22,17 +26,18 @@ def index(request, page):
             'page' : page
         })
 
-    # this handles the submission of a new post.
+    # POST HANDLING
+    # ubmission of a new post.
     if request.method == 'POST':
         
-        # check authentication server-side too.
+        # check authentication server-side.
         if not request.user.is_authenticated:
             return render(request, "network/index.html", {
                     'context' : "Sorry! You are not logged in. Log in to add a new post!",
                     'color' : "red"
                 })
             
-        # if all is ok, then create the new post.
+        # if error checking ok, then create the new post.
         try:
             user = request.user
             post_text = request.POST.get("text")
@@ -56,7 +61,8 @@ def index(request, page):
             p.save()
             return render(request, "network/index.html", {
                 'context' : 'Post shared!',
-                'color' : "green"
+                'color' : "green",
+                'page' : 'all',
             })
 
         # exception handler, just in case
@@ -64,7 +70,8 @@ def index(request, page):
             return HttpResponse("unexpected exception occured, please inform an admin")
 
 
-#TODO: 
+# This view displays all information and posts from a single user.
+# from this page the user in question can be followed or unfollowed by the logged in user.
 def user (request, id):
     profile_user =  User.objects.get(pk=id)
     return render(request, "network/user.html", {
@@ -72,8 +79,8 @@ def user (request, id):
     })
 
 
-
-        
+# This is a catch-all function that redirects to the main index page with "all" as argument.
+# It is useful to process requests without arguments or to work around buggy url handling. 
 def index_redirect (request):
     return HttpResponseRedirect(reverse("index", kwargs={'page': "all"}))
 
@@ -164,10 +171,13 @@ def posts (request, filter):
 
     return JsonResponse([post.serialize() for post in posts], safe=False)
 
+@csrf_exempt
 def follow (request):
 
+    data = json.loads(request.body)
+    logger.info(f"request data is {data}")
     logger.info(f"got {request.method} request")
-    
+    logger.info(f"{request.user.username} wants to follow ....")
     #TODO:
     #elaborate JSON data form frontend
     # get following user username or ID
@@ -178,4 +188,4 @@ def follow (request):
     # test
     # save()
     
-    pass
+    return JsonResponse({"status : OK"}, status=400)

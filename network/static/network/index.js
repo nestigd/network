@@ -9,19 +9,7 @@ document.addEventListener('DOMContentLoaded', function (){
     let page = document.querySelector('#page').value;
     // use the page value as filtering variable to get the related posts
     getPost(`${page}`);
-
-    // When the "share" button of the new post is clicked, call a function to send the post to the backend
-    if (document.querySelector('#newpost_share') != undefined){
-        document.querySelector('#newpost_share').onclick = () => {
-            submitpost();
-       }
-    };
     
-
-    document.querySelector('#posts_all').onclick = () => {
-        console.log("clicked link");
-        return false;
-    }
 
 });
 
