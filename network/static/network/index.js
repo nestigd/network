@@ -10,18 +10,29 @@ document.addEventListener('DOMContentLoaded', function (){
 
 // TODO: function to make a new child div displaying every post
 function makePostDiv(post) {
-    const id = post.id;
     
+    //create parent DIV for each new post
+    const post_div = document.createElement('div');
+
+    //create children
+    const post_author = document.createElement('span');
+    const post_created = document.createElement('span');
+    const post_text = document.createElement('div');
+
+    //populate new elements with data
+
+    post_div.id = `post_${post.id}`;
+    post_author.innerHTML = post.poster
 }
 
-// TODO: AJAX request to get posts from backend
-// TODO: needs to support the following filters: 'all', 'followed', '{user_id}'
+// needs to support the following filters: 'all', 'followed', '{user_id}'
 function getPost(filter){
     
     fetch(`posts/${filter}`)
     .then(response => response.json())
     .then(data => {
-        data.forEach(makePostDiv, this);
+        data.forEach(post =>{
+            makePostDiv(post);
+        } );
     });
-
 }

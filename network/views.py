@@ -1,7 +1,3 @@
-import logging
-logger = logging.getLogger('django')
-
-
 from hashlib import new
 from http import HTTPStatus
 from django.contrib.auth import authenticate, login, logout
@@ -10,9 +6,9 @@ from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-
 from .models import User, Post
-
+import logging
+logger = logging.getLogger('django')
 
 def index(request):
 
@@ -55,12 +51,7 @@ def index(request):
         # exception handler, just in case
         except:
             return HttpResponse("unexpected exception occured, please inform an admin")
-
-        
-
-
-
-
+       
 
 def login_view(request):
     if request.method == "POST":
@@ -120,13 +111,11 @@ def register(request):
 
 def posts (request, filter):
 
-    # TODO: GET ALL POSTS
-    if filter == 'all':
-        
+    # this will get all the posts in the database
+    if filter == 'all':              
         logger.info("requested all posts")
-        posts = Post.objects.all()        
-        pass
-
+        posts = Post.objects.all()
+        
     # TODO: GET POSTS OF ALL FOLLOWED USERS
 
     # TODO: GET POSTS OF A SPECIFIC USER
