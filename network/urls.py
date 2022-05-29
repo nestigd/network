@@ -13,5 +13,6 @@ urlpatterns = [
 
     #API routes
     path("posts/<slug:filter>", views.posts, name="posts"),
+    path("follow/<slug:filter>", views.follow, name="follow"),
 
 ]                                                                                                                                                                                   

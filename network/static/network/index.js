@@ -1,5 +1,6 @@
 // url to the posts API... TODO: find a way to make this dynamic -----------------------------------
 const postsAPIurl = "http://127.0.0.1:8000/posts"
+const followAPIurl = "http://127.0.0.1:8000/follow"
 
 // Wait for document to load before adding any event listeners to the page
 document.addEventListener('DOMContentLoaded', function (){

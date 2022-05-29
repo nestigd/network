@@ -13,8 +13,9 @@ logger = logging.getLogger('django')
 # this is the main page of the website. It can be visited even if the user is not logged in.
 # the view takes an argument that will be passed down as context to the HTML and will be referenced by JS to fetch the correect posts.
 def index(request, page):
-    logger.info(page)
-    print("got request")
+    logger.info(f"got {request.method} request")
+    logger.info(f"page filter{page}")
+
     # this returns the main page of the website
     if request.method == 'GET':
         return render(request, "network/index.html", {
@@ -66,6 +67,8 @@ def index_redirect (request):
     return HttpResponseRedirect(reverse("index", kwargs={'page': "all"}))
 
 def login_view(request):
+    logger.info(f"got {request.method} request")
+
     if request.method == "POST":
 
         # Attempt to sign user in
@@ -91,6 +94,9 @@ def logout_view(request):
 
 
 def register(request):
+    
+    logger.info(f"got {request.method} request")
+
     if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
@@ -123,15 +129,39 @@ def register(request):
 
 def posts (request, filter):
 
+    logger.info(f"got {request.method} request")
+
     # this will get all the posts in the database
     if filter == 'all':              
         logger.info("requested all posts")
         posts = Post.objects.all()
-        
+    
+    elif filter == 'following':
+        logger.info("requested following")
     # TODO: GET POSTS OF ALL FOLLOWED USERS
 
     # TODO: GET POSTS OF A SPECIFIC USER
-
+    
+    else:
+        return JsonResponse({"error: Bad request. invalid filter"}, status=400)
+    
+    
     posts = posts.order_by("timestamp").all()
 
     return JsonResponse([post.serialize() for post in posts], safe=False)
+
+def follow (request):
+
+    logger.info(f"got {request.method} request")
+    
+    #TODO:
+    #elaborate JSON data form frontend
+    # get following user username or ID
+    # get followed user UN or ID
+    
+    # get the users from the database filtering with this data
+    # make new Following object
+    # test
+    # save()
+    
+    pass
