@@ -10,7 +10,6 @@ class User(AbstractUser):
 class Post(models.Model):
     poster = models.ForeignKey("User", on_delete = models.CASCADE, related_name = "posts")
     body = models.TextField(blank=True)
-    likes = models.ManyToManyField("User", related_name = "liked_posts", blank=True)
     timestamp = models.DateTimeField(auto_now_add= True)
     edited_on = models.DateTimeField (auto_now = True)
     
@@ -36,4 +35,11 @@ class Following(models.Model):
     
     def __str__(self):
         return f"{self.follower} -> {self.followed}"
+    
+class Likes(models.Model):
+    post: models.ForeignKey("Post", on_delete= models.CASCADE, related_name = "likes")
+    user: models.ForeignKey("User", on_delete= models.CASCADE, related_name= "likes")
+    
+    def __str__(self):
+        return f"{self.user} -> {self.post} by {self.post.poster.username}"    
         
