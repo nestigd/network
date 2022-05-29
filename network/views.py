@@ -147,12 +147,15 @@ def posts (request, filter):
         logger.info("requested all posts")
         posts = Post.objects.all()
     
+    # TODO: GET POSTS OF ALL FOLLOWED USERS
     elif filter == 'following':
         logger.info("requested following")
-    # TODO: GET POSTS OF ALL FOLLOWED USERS
 
     # TODO: GET POSTS OF A SPECIFIC USER
-    
+    elif filter.isnumeric():
+        logger.info("requested specific user's posts")
+        posts = Post.objects.filter (poster = int(filter))
+
     else:
         return JsonResponse({"error: Bad request. invalid filter"}, status=400)
     
