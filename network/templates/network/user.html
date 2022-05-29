@@ -1,0 +1,30 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+
+
+
+{% block body %}
+    
+    {% comment "" %}USER PROFILE INFO WILL BE DISPLAYED HERE{% endcomment %}
+    <h1>USER WILL BE DISPLAYED HERE</h1>
+
+
+    {% if user.is_authenticated %}    
+        {% comment "" %}
+            TODO: FOLLOW UNFOLLOW BUTTON
+        {% endcomment %}        
+    {%endif%}        
+        
+        <div id= "post_container">
+            <input type="hidden" id="page" value = {{profile_user.id}}>
+
+            TODO: SHOW ALL POSTS HERE:
+        </div>
+
+
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/index.js' %}"></script>
+{% endblock %}

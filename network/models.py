@@ -21,7 +21,6 @@ class Post(models.Model):
             "id" : self.id,
             "poster" : self.poster.username,
             "body" : self.body,
-            "likes" : self.likes.all().count(),
             "timestamp": self.timestamp,
             "edited_on" : self.edited_on,
         }
