@@ -4,44 +4,54 @@ from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from .models import User, Post
 import logging
 logger = logging.getLogger('django')
 
-def index(request):
-
+# this is the main page of the website. It can be visited even if the user is not logged in.
+# the view takes an argument that will be passed down as context to the HTML and will be referenced by JS to fetch the correect posts.
+def index(request, page):
+    logger.info(page)
+    print("got request")
     # this returns the main page of the website
     if request.method == 'GET':
-        return render(request, "network/index.html")
+        return render(request, "network/index.html", {
+            'page' : page
+        })
 
-
-
-    # this handles the submission of a new post by a registered user.
-    if request.method == 'POST' and request.user.is_authenticated:
-
+    # this handles the submission of a new post.
+    if request.method == 'POST':
+        
+        # check authentication server-side too.
+        if not request.user.is_authenticated:
+            return render(request, "network/index.html", {
+                    'context' : "Sorry! You are not logged in. Log in to add a new post!",
+                    'color' : "red"
+                })
+            
+        # if all is ok, then create the new post.
         try:
-            # create the new post
             user = request.user
             post_text = request.POST.get("text")
             p = Post(poster=user,body = post_text)
 
-            # just some console logs to help with debugging... self explainatory, I know...
-            logger.debug(f"user: {user} body {post_text}")
-            logger.debug (p.is_valid_post())
-            logger.debug(f"object {p}")
+            # just some console logs to facilitate testing.
+            logger.info(f"user: {user} body {post_text}")
+            logger.info (p.is_valid_post())
+            logger.info(f"object {p}")
 
             # run tests on new posts before saving
             if not p.is_valid_post():
                 
-                # inform user that the post wasn't succesfully saved
+                # test failed: inform user that the post wasn't succesfully saved
                 return render(request, "network/index.html", {
                     'context' : "Sorry! Your post wasn't saved because an exception has occurred. Please inform an admin",
                     'color' : "red"
                 })
 
-            # if all tests pass, save the data and render the index page informing the user that the post was saved.
+            # test passed: save the data and render the index page informing the user that the post was saved.
             p.save()
             return render(request, "network/index.html", {
                 'context' : 'Post shared!',
@@ -51,7 +61,9 @@ def index(request):
         # exception handler, just in case
         except:
             return HttpResponse("unexpected exception occured, please inform an admin")
-       
+        
+def index_redirect (request):
+    return HttpResponseRedirect(reverse("index", kwargs={'page': "all"}))
 
 def login_view(request):
     if request.method == "POST":

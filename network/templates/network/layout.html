@@ -12,8 +12,12 @@
         {% endblock %}
 
     </head>
-    <body>
 
+    
+    <body>
+        {% comment %}
+        HERE IS THE NAVBAR
+        {% endcomment %}
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" href="#">Network</a>
           
@@ -25,18 +29,18 @@
                     </li>
                 {% endif %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'index' %}">All Posts</a>
+                            <a id="posts_all" class="nav-link" href="{% url 'index' 'all'%}">All Posts</a>
                 </li>
                 {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Following</a>
+                        <a id="posts_following" class="nav-link" href="#">Following</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                        <a id="login" class="nav-link" href="{% url 'login' %}">Log In</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'register' %}">Register</a>
@@ -45,10 +49,23 @@
               </ul>
             </div>
           </nav>
-        
-        <div class="body">
-            {% block body %}
-            {% endblock %}
+
+          {% comment "" %}THIS DIV WILL SHOW A MESSAGE PASSED FROM VIEWS.PY. IT ALSO SUPPORTS A 
+          BACKGROUND COLOR, IT SHOULD USUALLY BE RED OR GREEN{% endcomment %}
+          <div style = "background-color : {{color}}"> {{context}} </div>
+
+        {% comment %}
+          DIDN'T WANT THE BODY TO GO FROM SIDE TO SIDE WHEN IN FULLSCREEN MODE, SO I PLACED THE BODY BLOCK INSIDE A CONTAINER
+          THE CONTAINER IS RESPONSIVE AND WILL BECOME 100% WIDE AT A LARGE BREAKPOINT.
+        {% endcomment %}
+        <div class="body_centralcolumn">
+            <div class="row justify-content-center">
+                <div class="col col-lg-6">
+                    {% block body %}
+                    {% endblock %}
+                </div>
+            </div>
         </div>
     </body>
+
 </html>
