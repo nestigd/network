@@ -14,10 +14,8 @@ from django.core.exceptions import ObjectDoesNotExist
 import logging
 logger = logging.getLogger('django')
 
-# this is the main page of the website. The view takes an argument that can be "all" or "following"... 
-# The filter will determine which posts the user will see. JS will use this filter fetch the data from an API later defined in this file.
-
-# This index view will also be responsible for handling POST requests containing new content from the users
+# main page of the website. 
+# use "all" or "following" in the url to call the set of posts you want to view.
 def index(request, page):
     
     # CASE #1:
@@ -27,9 +25,9 @@ def index(request, page):
             'page' : page
         })
 
-    
+
+# Index view also handles POST requests containing the new content from the users
     # CASE #2: POST
-    # ubmission of a new post.
     if request.method == 'POST':
               
         # check authentication server-side.
@@ -45,12 +43,8 @@ def index(request, page):
             post_text = request.POST.get("text")
             p = Post(poster=user,body = post_text)
 
-            # just some console logs to facilitate testing.
-            logger.info(f"user: {user} body {post_text}")
-            logger.info (p.is_valid_post())
-            logger.info(f"object {p}")
-
             # run tests on new posts before saving
+            # TODO: better tests need to be implemented
             if not p.is_valid_post():
                 
                 # test failed: inform user that the post wasn't succesfully saved
@@ -78,8 +72,7 @@ def index_redirect (request):
     return HttpResponseRedirect(reverse("index", kwargs={'page': "all"}))
 
 
-# This view displays all information and posts from a single user.
-# from this page the user in question can be followed or unfollowed by the logged in user.
+# User profile page
 def user (request, id):
     try:    
         profile_user =  User.objects.get(pk=id)
@@ -220,12 +213,20 @@ def follow (request):
     if user_to_follow == user_who_follows:
         return JsonResponse({"status" : "can't follow yourself"}, status=400)
     
+    
+    # CASE 1: the user already follows. Let the user know and do nothing
+    oldfollow = user_to_follow.followers.filter(follower = user_who_follows).first()   
+    if  oldfollow:
+        return JsonResponse({"status" : "OK",
+                         "count" : f"you already follow {user_to_follow.username}",
+                         "oldfollow" : oldfollow.follower.username }, status=201)
+    
+    # CASE 2: 
     # if no errors are found, we go ahead and save the new object.
-    print(f"now will save {user_to_follow.username} and {user_who_follows.username}")
     new_following = Following(follower = user_who_follows, followed = user_to_follow)
     new_following.save()
-    
-    
-    
+      
     return JsonResponse({"status" : "OK",
                          "count" : f"{user_to_follow.username} has now {user_to_follow.followers.count()} follower(s)"}, status=201)
+    
+ 

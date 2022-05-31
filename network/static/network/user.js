@@ -74,7 +74,7 @@ function changeFollowStatus (userToFollow){
         method : 'post',
         body : JSON.stringify(payload),
     })
-    .then(response => response.json())
+    .then(response => response.text())
     .then(data => {
         console.log(data);
         alert(data);
