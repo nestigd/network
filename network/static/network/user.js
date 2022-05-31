@@ -13,8 +13,9 @@ document.addEventListener('DOMContentLoaded', function (){
     getPost(`${page}`);
 
     document.querySelector('#follow').onclick = function () {
-        console.log("click");
+        console.log("clicked follow");
         changeFollowStatus(`${page}`);
+        console.log("performed follow");
     }
    
 });
@@ -61,19 +62,22 @@ function changeFollowStatus (userToFollow){
 
     if (isNaN(userToFollow)){
         console.log("userToFollow variable is not a number.");
+        alert("userToFollow variable is not a number.")
         return false
+    }
+
+    const payload = {
+        "userToFollow" : userToFollow
     }
 
     fetch(`${followAPIurl}`,{
         method : 'post',
-        body : {
-            "userToFollow" : JSON.stringify(userToFollow),
-        }
+        body : JSON.stringify(payload),
     })
-    .then(response => response.text())
-    .then(text => {
-        console.log(text);
-        alert(text);
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        alert(data);
     })
 
 }

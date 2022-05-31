@@ -30,15 +30,15 @@ class Post(models.Model):
         return self.body != ""  
 
 class Following(models.Model):
-    follower: models.ForeignKey("User", on_delete = models.CASCADE, related_name = "followed")
-    followed: models.ForeignKey("User", on_delete = models.CASCADE, related_name= "followers")
+    follower= models.ForeignKey("User", on_delete = models.CASCADE, related_name = "followed")
+    followed= models.ForeignKey("User", on_delete = models.CASCADE, related_name= "followers")
     
     def __str__(self):
         return f"{self.follower} -> {self.followed}"
     
 class Like(models.Model):
-    post: models.ForeignKey("Post", on_delete= models.CASCADE, related_name = "likes")
-    user: models.ForeignKey("User", on_delete= models.CASCADE, related_name= "likes")
+    post= models.ForeignKey("Post", on_delete= models.CASCADE, related_name = "likes")
+    user= models.ForeignKey("User", on_delete= models.CASCADE, related_name= "likes")
     
     def __str__(self):
         return f"{self.user} -> {self.post} by {self.post.poster.username}"    
