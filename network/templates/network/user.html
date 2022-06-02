@@ -9,6 +9,9 @@
     {% comment "" %}USER PROFILE INFO WILL BE DISPLAYED HERE{% endcomment %}
     <h1>{{profile_user.username}}'s profile</h1>
 
+    <span><h4>Followers: {{profile_user.followers.count}}</h4></span> 
+    <span><h4>Following: {{profile_user.following.count}}</h4></span>
+
 
     {% if user.is_authenticated and currently_following == True %}    
         <button class="btn btn-primary" id="follow-unfollow">Unfollow</button>  

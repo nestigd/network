@@ -18,7 +18,7 @@ logger = logging.getLogger('django')
 
 
 
-# use "all" or "following" page parameter to decide which set of posts to view.
+# use "all" or "followed" page parameter to decide which set of posts to view.
 def index(request, page):
     
     # CASE #1:
@@ -74,9 +74,10 @@ def user (request, id):
         return HttpResponseRedirect(reverse("index", kwargs = {"page" : "all"}))
     
     currently_following = False 
-   
-    if request.user.following.filter(followed = profile_user).count() > 0:
-        currently_following = True
+
+    if request.user.is_authenticated:
+        if request.user.following.filter(followed = profile_user).count() > 0:
+            currently_following = True
     
     return render(request, "network/user.html", {
         "profile_user" : profile_user,
@@ -88,17 +89,24 @@ def user (request, id):
 
 def posts (request, filter):
 
-    logger.info(f"got {request.method} request")
+    message = ""
 
+    # handle anonymous user before it become a problem
+    if not request.user.is_authenticated:
+        filter = 'all'
+    
     # CASE #1: this will get all the posts in the database
     if filter == 'all':              
-        logger.info("requested all posts")
         posts = Post.objects.all()
     
     # TODO: CASE #2: This will only get the posts of followed users.
     # Follow() needs to be implemented before completing this.
-    elif filter == 'following':
-        logger.info("requested following")
+    elif filter == 'followed':
+        
+        users_followed = request.user.following.all()
+        print (users_followed)
+  
+        #posts = Post.objecs.filter()
 
     # CASE #3: Filter by a specific user ID.
     elif filter.isnumeric():
@@ -106,13 +114,14 @@ def posts (request, filter):
         posts = Post.objects.filter (poster = int(filter))
 
     else:
+        message.append("invalid filter")
         return JsonResponse({
             "status": "error", 
-            "alert_msg" : "invalid filter"
+            "alert_msg" : message
         }, status=400)
     
-    # AFTER CASE 1,2, or 3 have taken place, order the query list. 
-    posts = posts.order_by("timestamp").all()
+    # reverse chronological order. 
+    posts = posts.order_by("-timestamp").all()
 
     return JsonResponse([post.serialize() for post in posts], safe=False)
 
@@ -270,6 +279,3 @@ def register(request):
         return HttpResponseRedirect(reverse("index_redirect"))
     else:
         return render(request, "network/register.html")
-
-
-

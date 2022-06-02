@@ -1,13 +1,12 @@
 {% extends "network/layout.html" %}
 {% load static %}
 
-
-
-
 {% block body %}
     {% if user.is_authenticated %}    
         <!-- this is form to submit a new post. It is visible only when the user is logged in. -->
+        
         <div class='newpost_form_container' >
+            <h3>Add a new post:</h3>
             <form id= 'newpost_form' action = "{% url 'index' 'post' %}" method= 'post' >
                 {% csrf_token %}
                 <textarea id="newpost_text" name='text' class='newpost_text' placeholder="think here... think hard" required></textarea>
@@ -16,8 +15,9 @@
         </div>
     {%endif%}        
         
+        <h3>Posts from {{page}} users</h3>
         <div id= "post_container">
-            TODO: SHOW ALL POSTS HERE:
+            
         </div>
 
         <input type="hidden" id="page" value = {{page}}>
