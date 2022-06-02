@@ -25,9 +25,8 @@ def index(request, page):
             'page' : page
         })
 
-
-# Index view also handles POST requests containing the new content from the users
     # CASE #2: POST
+    # Handles POST requests containing the new content created by the users
     if request.method == 'POST':
               
         # check authentication server-side.
@@ -43,18 +42,12 @@ def index(request, page):
             post_text = request.POST.get("text")
             p = Post(poster=user,body = post_text)
 
-            # run tests on new posts before saving
             # TODO: better tests need to be implemented
-            if not p.is_valid_post():
-                
-                # test failed: inform user that the post wasn't succesfully saved
-                return render(request, "network/index.html", {
-                    'context' : "Sorry! Your post wasn't saved because an exception has occurred. Please inform an admin",
-                    'color' : "red"
-                })
+            assert p.is_valid_post()
 
-            # test passed: save the data and render the index page informing the user that the post was saved.
+            # tests passed: save the data and render the index page informing the user that the post was saved.
             p.save()
+            
             return render(request, "network/index.html", {
                 'context' : 'Post shared!',
                 'color' : "green",
@@ -74,15 +67,22 @@ def index_redirect (request):
 
 # User profile page
 def user (request, id):
+    
+    # get the requested user data
     try:    
         profile_user =  User.objects.get(pk=id)
+    # if not successfull redirect to "home/all"
     except ObjectDoesNotExist:
         arg = "all"
         return HttpResponseRedirect(reverse("index", kwargs = {"page" : arg}))
     
+    print(request.user.following.all().count())
+    
     return render(request, "network/user.html", {
         "profile_user" : profile_user,
     })
+
+
 
 
 def login_view(request):

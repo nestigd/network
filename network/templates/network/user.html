@@ -15,7 +15,7 @@
             TODO: FOLLOW UNFOLLOW BUTTON
         {% endcomment %}        
     {%endif%}        
-        <button id="follow">FOLLOW / UNFOLLOW</button>
+        <button id="follow">FOLLOW</button>
         <HR></HR>
         <div id= "post_container">
             <input type="hidden" id="page" value = {{profile_user.id}}>
@@ -27,5 +27,5 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'network/user.js' %}"></script>
+    <script src="{% static 'network/index.js' %}"></script>
 {% endblock %}

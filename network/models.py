@@ -21,6 +21,7 @@ class Post(models.Model):
         return {
             "id" : self.id,
             "poster" : self.poster.username,
+            "poster_id" : self.poster.id,
             "body" : self.body,
             "timestamp": self.timestamp,
             "edited_on" : self.edited_on,
@@ -30,7 +31,7 @@ class Post(models.Model):
         return self.body != ""  
 
 class Following(models.Model):
-    follower= models.ForeignKey("User", on_delete = models.CASCADE, related_name = "followed")
+    follower= models.ForeignKey("User", on_delete = models.CASCADE, related_name = "following")
     followed= models.ForeignKey("User", on_delete = models.CASCADE, related_name= "followers")
     
     def __str__(self):
