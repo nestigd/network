@@ -51,5 +51,6 @@ Edit Post: Users should be able to click an “Edit” button or link on any of 
 When a user clicks “Edit” for one of their own posts, the content of their post should be replaced with a textarea where the user can edit the content of their post.
 The user should then be able to “Save” the edited post. Using JavaScript, you should be able to achieve this without requiring a reload of the entire page.
 For security, ensure that your application is designed such that it is not possible for a user, via any route, to edit another user’s posts.
+
 “Like” and “Unlike”: Users should be able to click a button or link on any post to toggle whether or not they “like” that post.
 Using JavaScript, you should asynchronously let the server know to update the like count (as via a call to fetch) and then update the post’s like count displayed on the page, without requiring a reload of the entire page.

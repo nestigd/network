@@ -11,6 +11,8 @@ from .models import Following, User, Post
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import Paginator
+
 
 import logging
 
@@ -20,11 +22,11 @@ logger = logging.getLogger('django')
 # this is the main view of the website. 
 # It displays "all" posts or posts by "followed" user. 
 # This parameter needs to be provided in the url 
-def index(request, page):
+def index(request,  filter):
     
     if request.method == 'GET':
         return render(request, "network/index.html", {
-            'page' : page
+            'filter' : filter
         })
 
 
@@ -37,7 +39,7 @@ def index(request, page):
             return render(request, "network/index.html", {
                     'context' : "Sorry! You are not logged in. Log in to add a new post!",
                     'color' : "red",
-                    "page" : page
+                    "filter" : filter
                 })
               
         # generate the new post object.
@@ -56,13 +58,13 @@ def index(request, page):
                 return render(request, "network/index.html", {
                 'context' : 'not shared! there was a problem and it could not be saved to the server',
                 'color' : "red",
-                'page' : page,
+                'filter' : filter,
             })
             
             return render(request, "network/index.html", {
                 'context' : 'Post shared!',
                 'color' : "green",
-                'page' : page,
+                'filter' : filter,
             })
 
         # exception handler for unforseen events
@@ -79,7 +81,7 @@ def user (request, id):
     
     # if not successfull redirect to "homepage"
     except ObjectDoesNotExist:
-        return HttpResponseRedirect(reverse("index", kwargs = {"page" : "all"}))
+        return HttpResponseRedirect(reverse("index", kwargs = {"filter" : "all"}))
     
     currently_following = False 
 
@@ -96,8 +98,6 @@ def user (request, id):
 # an argument needs to be provided. You can filter by: all, followed, user
 
 def posts (request, filter):
-
-    message = ""
 
     # handle anonymous user before it become a problem
     if not request.user.is_authenticated:
@@ -125,9 +125,10 @@ def posts (request, filter):
         }, status=400)
     
     # reverse chronological order. 
-    posts = posts.order_by("-timestamp").all()
+    posts = Paginator(posts.order_by("-timestamp").all(), 5)
+    post_page = posts.get_page(1)
 
-    return JsonResponse([post.serialize() for post in posts], safe=False)
+    return JsonResponse([post.serialize() for post in post_page], safe=False)
 
 
 # creates or deletes Following objects
@@ -201,7 +202,7 @@ def follow (request):
 # This is a catch-all function that redirects to the main index page with "all" as argument.
 # It is useful to process bad requests without necessarily throwing a 404. 
 def index_redirect (request):
-    return HttpResponseRedirect(reverse("index", kwargs={'page': "all"}))
+    return HttpResponseRedirect(reverse("index", kwargs={'filter': "all"}))
 
 
 

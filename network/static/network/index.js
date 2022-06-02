@@ -5,17 +5,17 @@ const domain = window.parent.location.origin;
 // Wait for document to load before adding any event listeners to the page
 document.addEventListener('DOMContentLoaded', function (){
 
-    // the page variable is porvided by the url. It can be 'all' or 'followed' 
-    let page = document.querySelector('#page').value;
+    // the filter variable is porvided by the url. It can be 'all' or 'followed' 
+    let filter = document.querySelector('#filter').value;
 
-    // use the page value to get the related posts
-    getPost(`${page}`);
+    // use the filter value to get the related posts
+    getPost(`${filter}`);
     
     // if follow-unfollow button has been loaded (user is logged in) add event listener
     if (document.querySelector('#follow-unfollow') != undefined){
         document.querySelector('#follow-unfollow').onclick = function () {
             console.log("clicked follow");
-            changeFollowStatus(`${page}`);
+            changeFollowStatus(`${filter}`);
             console.log("performed follow");
         }
     }
