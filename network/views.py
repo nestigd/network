@@ -17,44 +17,52 @@ import logging
 logger = logging.getLogger('django')
 
 
-
-# use "all" or "followed" page parameter to decide which set of posts to view.
+# this is the main view of the website. 
+# It displays "all" posts or posts by "followed" user. 
+# This parameter needs to be provided in the url 
 def index(request, page):
     
-    # CASE #1:
-    # this returns the main page of the website
     if request.method == 'GET':
         return render(request, "network/index.html", {
             'page' : page
         })
 
-    # CASE #2: POST
-    # Handles POST requests containing the new content created by the users
+
+
+    # this page also handles post submissions.
     if request.method == 'POST':
               
         # check authentication server-side.
         if not request.user.is_authenticated:
             return render(request, "network/index.html", {
                     'context' : "Sorry! You are not logged in. Log in to add a new post!",
-                    'color' : "red"
+                    'color' : "red",
+                    "page" : page
                 })
               
-        # Create the new post.
+        # generate the new post object.
         try:
             user = request.user
             post_text = request.POST.get("text")
             p = Post(poster=user,body = post_text)
 
-            # TODO: better tests need to be implemented
-            assert p.is_valid_post()
-
-            # tests passed: save the data and render the index page informing the user that the post was saved.
-            p.save()
+            # TODO: implement better testing
+            try:
+                assert p.is_valid_post()
+                # save posts if tests pass
+                p.save()
+                
+            except:
+                return render(request, "network/index.html", {
+                'context' : 'not shared! there was a problem and it could not be saved to the server',
+                'color' : "red",
+                'page' : page,
+            })
             
             return render(request, "network/index.html", {
                 'context' : 'Post shared!',
                 'color' : "green",
-                'page' : 'all',
+                'page' : page,
             })
 
         # exception handler for unforseen events
@@ -99,18 +107,14 @@ def posts (request, filter):
     if filter == 'all':              
         posts = Post.objects.all()
     
-    # TODO: CASE #2: This will only get the posts of followed users.
-    # Follow() needs to be implemented before completing this.
+    #CASE #2: only get the posts by followed users
     elif filter == 'followed':
-        
-        users_followed = request.user.following.all()
-        print (users_followed)
-  
-        #posts = Post.objecs.filter()
+      
+        following = request.user.following.values_list("followed" , flat = True)
+        posts = Post.objects.filter(poster__in = following)
 
-    # CASE #3: Filter by a specific user ID.
+    # CASE #3: only get posts by one specific user.
     elif filter.isnumeric():
-        logger.info("requested specific user's posts")
         posts = Post.objects.filter (poster = int(filter))
 
     else:
@@ -124,18 +128,6 @@ def posts (request, filter):
     posts = posts.order_by("-timestamp").all()
 
     return JsonResponse([post.serialize() for post in posts], safe=False)
-
-
-
-
-#TODO:
-# OK - get following user username or ID
-# get followed user UN or ID
-
-# get the users from the database filtering with this data
-# make new Following object
-# test
-# save()
 
 
 # creates or deletes Following objects
@@ -206,19 +198,13 @@ def follow (request):
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
 # This is a catch-all function that redirects to the main index page with "all" as argument.
 # It is useful to process bad requests without necessarily throwing a 404. 
 def index_redirect (request):
     return HttpResponseRedirect(reverse("index", kwargs={'page': "all"}))
+
+
+
 
 
 

@@ -15,15 +15,17 @@
         </div>
     {%endif%}        
         
-        <h3>Posts from {{page}} users</h3>
+        <h3>Posts from {{page}} users:</h3>
+
         <div id= "post_container">
             
         </div>
 
-        <input type="hidden" id="page" value = {{page}}>
 
 {% endblock %}
 
 {% block script %}
     <script src="{% static 'network/index.js' %}"></script>
+    <input type="hidden" id="page" value = {{page}}>
+
 {% endblock %}

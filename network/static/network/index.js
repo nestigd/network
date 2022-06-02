@@ -98,8 +98,6 @@ function changeFollowStatus (userToFollow){
     .then(response => response.json())
     .then(data => {
         console.log(data);
-        alert(data["alert_msg"]);
-        
         
         if (button.innerHTML === "Follow"){
             button.innerHTML = "Unfollow";
