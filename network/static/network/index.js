@@ -1,6 +1,7 @@
 // url to the posts API... TODO: find a way to make this dynamic -----------------------------------
 const domain = window.parent.location.origin;
-
+// by default set page to the first one
+let globalpage = 1;
 
 // Wait for document to load before adding any event listeners to the page
 document.addEventListener('DOMContentLoaded', function (){
@@ -9,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function (){
     let filter = document.querySelector('#filter').value;
 
     // use the filter value to get the related posts
-    getPost(`${filter}`);
+    getPost(`${filter}`, globalpage);
     
     // if follow-unfollow button has been loaded (user is logged in) add event listener
     if (document.querySelector('#follow-unfollow') != undefined){
@@ -20,6 +21,8 @@ document.addEventListener('DOMContentLoaded', function (){
         }
     }
 
+    document.addEventListener
+
 });
 
 
@@ -27,6 +30,8 @@ document.addEventListener('DOMContentLoaded', function (){
 // this function makes a new DIV element and all its children containing the post information
 function makePostDiv(post) {
     
+    //remove any elements inside if there are any
+
     //create parent DIV for each new post
     const post_div = document.createElement('div');
 
@@ -60,11 +65,12 @@ function makePostDiv(post) {
 
 // this function sends an AJAX request to the server and receives a list of "post" objects back
 // it supports a filter parameter that specifies which kind of post are requested: 'all', 'followed', '{user_id}'
-function getPost(filter){
+function getPost(filter, page){
 
-    fetch(`${domain}/posts/${filter}`)
+    fetch(`${domain}/posts/${filter}&${page}`)
     .then(response => response.json())
     .then(data => {
+        document.querySelector('#post_container').innerHTML = "";
         data.forEach(post =>{
             console.log(post);
             makePostDiv(post);

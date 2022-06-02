@@ -97,7 +97,7 @@ def user (request, id):
 # this API will send post objects as JSON data
 # an argument needs to be provided. You can filter by: all, followed, user
 
-def posts (request, filter):
+def posts (request, filter, page):
 
     # handle anonymous user before it become a problem
     if not request.user.is_authenticated:
@@ -126,7 +126,7 @@ def posts (request, filter):
     
     # reverse chronological order. 
     posts = Paginator(posts.order_by("-timestamp").all(), 5)
-    post_page = posts.get_page(1)
+    post_page = posts.get_page(page)
 
     return JsonResponse([post.serialize() for post in post_page], safe=False)
 
