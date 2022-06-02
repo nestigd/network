@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', function (){
     getPost(`${page}`);
     
     
-    if (document.querySelector('#follow') != undefined){
-        document.querySelector('#follow').onclick = function () {
+    if (document.querySelector('#follow-unfollow') != undefined){
+        document.querySelector('#follow-unfollow').onclick = function () {
             console.log("clicked follow");
             changeFollowStatus(`${page}`);
             console.log("performed follow");
@@ -20,10 +20,6 @@ document.addEventListener('DOMContentLoaded', function (){
     }
 
 });
-
-
-
-
 
 
 
@@ -74,7 +70,8 @@ function getPost(filter){
 // PASS FOLLOW OR UNFOLLOW AS ARGUMENT TO THIS FUNCTION ANT THAT WILL GIVE THE API INFO ABOUT WHAT TO DO
 // INITIALLY I WANTED TO USE THE SAME BUTTON TO FOLLOW/UNFOLLOW BUT IT WOULD BE EASY FOR A USER TO ACCIDENTALLY MESS UP
 function changeFollowStatus (userToFollow){
-
+    let button =  document.querySelector('#follow-unfollow');
+      
     if (isNaN(userToFollow)){
         console.log("userToFollow variable is not a number.");
         alert("userToFollow variable is not a number.")
@@ -82,17 +79,28 @@ function changeFollowStatus (userToFollow){
     }
 
     const payload = {
-        "userToFollow" : userToFollow
+        "userToFollow" : userToFollow,
+        "operation" : button.innerHTML
     }
 
     fetch(`${domain}/follow`,{
         method : 'post',
         body : JSON.stringify(payload),
     })
-    .then(response => response.text())
+    .then(response => response.json())
     .then(data => {
         console.log(data);
-        alert(data);
+        alert(data["alert_msg"]);
+        
+        
+        if (button.innerHTML === "Follow"){
+            button.innerHTML = "Unfollow";
+        }
+        else {
+            button.innerHTML = "Follow";
+        }
+        
     })
 
+    
 }

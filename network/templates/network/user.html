@@ -10,17 +10,15 @@
     <h1>{{profile_user.username}}'s profile</h1>
 
 
-    {% if user.is_authenticated %}    
-        {% comment "" %}
-            TODO: FOLLOW UNFOLLOW BUTTON
-        {% endcomment %}        
+    {% if user.is_authenticated and currently_following == True %}    
+        <button class="btn btn-primary" id="follow-unfollow">Unfollow</button>  
+    {% elif user.is_authenticated and currently_following == False %}
+        <button class="btn btn-primary" id="follow-unfollow">Follow</button>
     {%endif%}        
-        <button id="follow">FOLLOW</button>
-        <HR></HR>
+        
+    <HR></HR>
         <div id= "post_container">
             <input type="hidden" id="page" value = {{profile_user.id}}>
-
-            TODO: SHOW ALL POSTS HERE:
         </div>
 
 
