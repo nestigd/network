@@ -13,9 +13,9 @@
     <span><h4>Following: {{profile_user.following.count}}</h4></span>
 
 
-    {% if user.is_authenticated and currently_following == True %}    
+    {% if user.is_authenticated and currently_following == True and user.id != profile_user.id %}    
         <button class="btn btn-primary" id="follow-unfollow">Unfollow</button>  
-    {% elif user.is_authenticated and currently_following == False %}
+    {% elif user.is_authenticated and currently_following == False and user.id != profile_user.id%}
         <button class="btn btn-primary" id="follow-unfollow">Follow</button>
     {%endif%}        
         
