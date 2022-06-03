@@ -5,29 +5,8 @@ https://cs50.harvard.edu/web/2020/projects/4/network/
 This is a very simplified social network web app that I'm using to get some practice with Django.
 The backbone structure of the website already came in the form of distribution code, so I'm really only adding the view - model - controller part to this.
 
-My next projects will have very little distribution code if any at all.
 
-
-TODO: views.py follow() 
-
-ADD CASE 3: UNFOLLOW
-CHECK THAT USER IS ALREADY FOLLOWING. THIS WAS ALREADY CHECKED ABOVE... I COULD TAKE ADVANTAGE OF THAT SOMEHOW
-FILTER BY USER_WHO_FOLLOWS AND USER_TO_FOLLOW AND .DELETE() THE OBJECT
-
-FIRST I THOUGHT THAT DELETING THE "FOLLOWING" OBJECT WAS A BIT TOO MUCH AND THAT A SIMPLE ACTIVE / NOT ACTIVE CHECKBOX SORT OF STRUCTURE COULD BE OK.
-THEN I REALIZED THAT IT WOULDN'T SCALE WELL IF EVERY USER HAS TO REFERENCE EVERY SINGLE OTHER USER IN THE DATABASE JUST TO KNOW IF IT FOLLOWS IT OR NOT... 
-IT'S MUCH EASIER TO SAVE AND DELETE A COUPLE OF FOREIGN KEYS WHEN NECESSARY
-
-TODO: ADD SOME SORT OF PAGINATION OR INFINITE SCROLL
-
-
-
-
-
-
-
-
-EXERCICE TO DO LIST:
+TO DO LIST:
 
 DONE -- New Post: Users who are signed in should be able to write a new text-based post by filling in text into a text area and then clicking a button to submit the post.
 The screenshot at the top of this specification shows the “New Post” box at the top of the “All Posts” page. You may choose to do this as well, or you may make the “New Post” feature a separate page.
@@ -44,7 +23,7 @@ DONE -- Following: The “Following” link in the navigation bar should take th
 This page should behave just as the “All Posts” page does, just with a more limited set of posts.
 This page should only be available to users who are signed in.
 
-Pagination: On any page that displays posts, posts should only be displayed 10 on a page. If there are more than ten posts, a “Next” button should appear to take the user to the next page of posts (which should be older than the current page of posts). If not on the first page, a “Previous” button should appear to take the user to the previous page of posts as well.
+DONE -- Pagination: On any page that displays posts, posts should only be displayed 10 on a page. If there are more than ten posts, a “Next” button should appear to take the user to the next page of posts (which should be older than the current page of posts). If not on the first page, a “Previous” button should appear to take the user to the previous page of posts as well.
 See the Hints section for some suggestions on how to implement this.
 
 Edit Post: Users should be able to click an “Edit” button or link on any of their own posts to edit that post.
