@@ -136,18 +136,25 @@ function updatePaginator(filter, pageInfo){
     
     document.querySelector("#current-page-link").innerHTML = pageInfo.this_page;    
     
+    // if filter is a number, prepend "user/" so that it becomes a valid url for a user page, otherwise it is already a valid url for 'index'.
+    if (!isNaN(filter)){
+        urlbuilder = `user/${filter}`;
+    }else{
+        urlbuilder = filter;
+    }
+
     if (!pageInfo.has_previous) {
         document.querySelector("#previous-page").className = "page-item disabled";
     }else{
         document.querySelector("#previous-page").className = "page-item";
-        document.querySelector("#previous-page-link").href = `${domain}/${filter}/page${(pageInfo.this_page) - 1}`;
+        document.querySelector("#previous-page-link").href = `${domain}/${urlbuilder}/page${(pageInfo.this_page) - 1}`;
     };
 
     if (!pageInfo.has_next) {
         document.querySelector("#next-page").className = "page-item disabled";
     }else{
         document.querySelector("#next-page").className = "page-item";
-        document.querySelector("#next-page-link").href = `${domain}/${filter}/page${(pageInfo.this_page) + 1}`;
+        document.querySelector("#next-page-link").href = `${domain}/${urlbuilder}/page${(pageInfo.this_page) + 1}`;
     }
 
 }
