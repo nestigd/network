@@ -85,7 +85,7 @@ function getPost(filter, page){
             makePostDiv(post);
         } );
 
-        updatePaginator(data["info"]["this_page"])
+        updatePaginator(filter, data["info"])
         // update paginator interface
         document.querySelector("#current-page-link").innerHTML = data["info"]["this_page"];
 
@@ -132,6 +132,22 @@ function changeFollowStatus (userToFollow){
 }
 
 
-function updatePaginator(newPageNumber){
-    document.querySelector("#current-page-link").innerHTML = newPageNumber;
+function updatePaginator(filter, pageInfo){
+    
+    document.querySelector("#current-page-link").innerHTML = pageInfo.this_page;    
+    
+    if (!pageInfo.has_previous) {
+        document.querySelector("#previous-page").className = "page-item disabled";
+    }else{
+        document.querySelector("#previous-page").className = "page-item";
+        document.querySelector("#previous-page-link").href = `${domain}/${filter}/page${(pageInfo.this_page) - 1}`;
+    };
+
+    if (!pageInfo.has_next) {
+        document.querySelector("#next-page").className = "page-item disabled";
+    }else{
+        document.querySelector("#next-page").className = "page-item";
+        document.querySelector("#next-page-link").href = `${domain}/${filter}/page${(pageInfo.this_page) + 1}`;
+    }
+
 }
