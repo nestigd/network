@@ -1,18 +1,20 @@
 // url to the posts API... TODO: find a way to make this dynamic -----------------------------------
 const domain = window.parent.location.origin;
 // by default set page to the first one
-let globalpage = 1;
 
-// Wait for document to load before adding any event listeners to the page
+// Wait for document to load 
 document.addEventListener('DOMContentLoaded', function (){
 
-    // the filter variable is porvided by the url. It can be 'all' or 'followed' 
+    // the filter variable is porvided by the url. It can be 'all/pagexx' or 'followed/pagexx' 
     let filter = document.querySelector('#filter').value;
 
-    // use the filter value to get the related posts
-    getPost(`${filter}`, globalpage);
+    // The page is provided in the HTML by Django at first. It will be later updated by JS.
+    let currentPage = document.querySelector('#current-page').value;
+
+    // use the filter and current page to get the relevant posts
+    getPost(filter, currentPage);
     
-    // if follow-unfollow button has been loaded (user is logged in) add event listener
+    // if follow-unfollow button has been loaded (you are in another user's profile page)... then add event listener
     if (document.querySelector('#follow-unfollow') != undefined){
         document.querySelector('#follow-unfollow').onclick = function () {
             console.log("clicked follow");
@@ -70,11 +72,23 @@ function getPost(filter, page){
     fetch(`${domain}/posts/${filter}&${page}`)
     .then(response => response.json())
     .then(data => {
+    
+        // empty the post container in case it is already populated
         document.querySelector('#post_container').innerHTML = "";
-        data.forEach(post =>{
-            console.log(post);
+
+        // debugging helpers
+        console.log(data["info"]);
+        console.log(data["page"]);
+
+        // populate container with new posts
+        data['page'].forEach(post =>{
             makePostDiv(post);
         } );
+
+        updatePaginator(data["info"]["this_page"])
+        // update paginator interface
+        document.querySelector("#current-page-link").innerHTML = data["info"]["this_page"];
+
     });
 }
 
@@ -115,4 +129,10 @@ function changeFollowStatus (userToFollow){
     })
 
     
+}
+
+
+function updatePaginator(newPageNumber){
+
+    document.querySelector("#current-page-link").innerHTML = newPageNumber;
 }

@@ -21,7 +21,6 @@
         
     <HR></HR>
         <div id= "post_container">
-            <input type="hidden" id="page" value = {{profile_user.id}}>
         </div>
 
 
@@ -29,4 +28,6 @@
 
 {% block script %}
     <script src="{% static 'network/index.js' %}"></script>
+    <input type="hidden" id="filter" value = {{profile_user.id}}>
+
 {% endblock %}

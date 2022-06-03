@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link href="{% static 'network/styles.css' %}" rel="stylesheet">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        
+        <input type="hidden" name="current-page" id="current-page" value={{page}}>
 
         {% block script %}
         {% endblock %}
@@ -60,24 +60,30 @@
           DIDN'T WANT THE BODY TO GO FROM SIDE TO SIDE WHEN IN FULLSCREEN MODE, SO I PLACED THE BODY BLOCK INSIDE A CONTAINER
           THE CONTAINER IS RESPONSIVE AND WILL BECOME 100% WIDE AT A LARGE BREAKPOINT.
         {% endcomment %}
+
         <div class="body_centralcolumn">
             <div class="row justify-content-center">
                 <div class="col col-lg-6">
                     {% block body %}
                     {% endblock %}
 
+                    {% if page %}
                     <nav aria-label="Page navigation">
                         <ul id="paginator" class="pagination">
-                          <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                          <li class="page-item"><a class="page-link" href="#">1</a></li>
-                          <li class="page-item"><a class="page-link" href="#">2</a></li>
-                          <li class="page-item"><a class="page-link" href="#">3</a></li>
+                          <li class="page-item" ><a class="page-link" href="#">Previous</a></li>
+                          <li class="page-item"><a class="page-link" id="current-page-link" href="#">{{page}}</a></li>
                           <li class="page-item"><a class="page-link" href="#">Next</a></li>
                         </ul>
-                      </nav>
+                    </nav>
+                    {% endif %}
+
+
                 </div>
             </div>
         </div>
+        
+
+
     </body>
 
 </html>
