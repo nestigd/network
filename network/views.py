@@ -22,12 +22,15 @@ logger = logging.getLogger('django')
 # this is the main view of the website. 
 # It displays "all" posts or posts by "followed" user. 
 # This parameter needs to be provided in the url 
-def index(request,  filter):
+def index(request,  filter='all', page = 1):
     
+    print(filter)
+    print(page)
+
     if request.method == 'GET':
         return render(request, "network/index.html", {
-            'filter' : filter
-        })
+            'filter' : filter,
+            'page' : page or 1        })
 
 
 
@@ -59,12 +62,14 @@ def index(request,  filter):
                 'context' : 'not shared! there was a problem and it could not be saved to the server',
                 'color' : "red",
                 'filter' : filter,
+                'page' : page or 1
             })
             
             return render(request, "network/index.html", {
                 'context' : 'Post shared!',
                 'color' : "green",
                 'filter' : filter,
+                'page' : page or 1
             })
 
         # exception handler for unforseen events
@@ -73,7 +78,7 @@ def index(request,  filter):
 
 
 # User profile page
-def user (request, id):
+def user (request, id, page = 1):
     
     # get the user's data
     try:    
@@ -81,7 +86,7 @@ def user (request, id):
     
     # if not successfull redirect to "homepage"
     except ObjectDoesNotExist:
-        return HttpResponseRedirect(reverse("index", kwargs = {"filter" : "all"}))
+        return HttpResponseRedirect(reverse("index", kwargs = {"filter" : "all" }))
     
     currently_following = False 
 
@@ -101,7 +106,10 @@ def posts (request, filter, page):
 
     # handle anonymous user before it become a problem
     if not request.user.is_authenticated:
-        filter = 'all'
+        return JsonResponse({
+            "status": "error", 
+            "alert_msg" : "Anonymous user isn't following any user"
+        },  status=400)
     
     # CASE #1: this will get all the posts in the database
     if filter == 'all':              
@@ -118,10 +126,9 @@ def posts (request, filter, page):
         posts = Post.objects.filter (poster = int(filter))
 
     else:
-        message.append("invalid filter")
         return JsonResponse({
             "status": "error", 
-            "alert_msg" : message
+            "alert_msg" : "filter parameter is not valid"
         }, status=400)
     
     # reverse chronological order. 
@@ -202,7 +209,7 @@ def follow (request):
 # This is a catch-all function that redirects to the main index page with "all" as argument.
 # It is useful to process bad requests without necessarily throwing a 404. 
 def index_redirect (request):
-    return HttpResponseRedirect(reverse("index", kwargs={'filter': "all"}))
+    return HttpResponseRedirect(reverse("index"))
 
 
 
