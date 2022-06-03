@@ -133,6 +133,5 @@ function changeFollowStatus (userToFollow){
 
 
 function updatePaginator(newPageNumber){
-
     document.querySelector("#current-page-link").innerHTML = newPageNumber;
 }
