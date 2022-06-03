@@ -26,16 +26,8 @@ PAGINATION_AMOUNT = 5
 def index(request,  filter='all', page = 1):
     
     #protect against unexpected requests
-    if filter not in ["all", "following"]:
+    if filter not in ["all", "followed"]:
         filter = "all"
-
-    if filter == "all":
-        post_count = Post.objects.all().count()
-
-    if filter == "following":
-        post_count = request.user.following.count()
-
-    print(post_count)
 
     if request.method == 'GET':
         return render(request, "network/index.html", {
