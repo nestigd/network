@@ -12,6 +12,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
+from django.db.models import F
+
 
 
 import logging
@@ -112,6 +114,7 @@ def posts (request, filter, page):
     # CASE #1: this will get all the posts in the database
     if filter == 'all':              
         posts = Post.objects.all()
+        print(posts)
     
     #CASE #2: only get the posts by followed users
     elif filter == 'followed':
@@ -129,7 +132,7 @@ def posts (request, filter, page):
 
     # CASE #3: only get posts by one specific user.
     elif filter.isnumeric():
-        posts = Post.objects.filter (poster = int(filter))
+        posts = Post.objects.filter(poster = int(filter))
 
     # CASE #4: wrong filter provided
     else:
@@ -137,6 +140,8 @@ def posts (request, filter, page):
             "status": "error", 
             "alert_msg" : "filter parameter is not valid"
         }, status=400)
+    
+    posts
     
     # reverse chronological order and create paginator. 
     posts_paginator = Paginator(posts.order_by("-timestamp").all(), PAGINATION_AMOUNT)
