@@ -7,7 +7,7 @@
         
         <div class='newpost_form_container' >
             <h3>Add a new post:</h3>
-            <form id= 'newpost_form' action = "{% url 'index' 'post' %}" method= 'post' >
+            <form id= 'newpost_form' action = "{% url 'index' 'all' %}" method= 'post' >
                 {% csrf_token %}
                 <textarea id="newpost_text" name='text' class='newpost_text' placeholder="think here... think hard" required></textarea>
                 <button id="newpost_share" class="btn btn-primary">Share</button>
@@ -15,7 +15,7 @@
         </div>
     {%endif%}        
         
-        <h3>Posts from {{page}} users:</h3>
+        <h3>Posts from {{filter}} users:</h3>
 
         <div id= "post_container">
             
@@ -26,6 +26,6 @@
 
 {% block script %}
     <script src="{% static 'network/index.js' %}"></script>
-    <input type="hidden" id="page" value = {{page}}>
+    <input type="hidden" id="filter" value = {{filter}}>
 
 {% endblock %}

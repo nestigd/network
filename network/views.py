@@ -11,21 +11,28 @@ from .models import Following, User, Post
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import Paginator
+
 
 import logging
 
 logger = logging.getLogger('django')
+PAGINATION_AMOUNT = 5
 
 
 # this is the main view of the website. 
 # It displays "all" posts or posts by "followed" user. 
 # This parameter needs to be provided in the url 
-def index(request, page):
+def index(request,  filter='all', page = 1):
     
+    #protect against unexpected requests
+    if filter not in ["all", "followed"]:
+        filter = "all"
+
     if request.method == 'GET':
         return render(request, "network/index.html", {
-            'page' : page
-        })
+            'filter' : filter,
+            'page' : page})
 
 
 
@@ -37,7 +44,8 @@ def index(request, page):
             return render(request, "network/index.html", {
                     'context' : "Sorry! You are not logged in. Log in to add a new post!",
                     'color' : "red",
-                    "page" : page
+                    "filter" : filter,
+                    "page" : page,
                 })
               
         # generate the new post object.
@@ -56,13 +64,15 @@ def index(request, page):
                 return render(request, "network/index.html", {
                 'context' : 'not shared! there was a problem and it could not be saved to the server',
                 'color' : "red",
-                'page' : page,
+                'filter' : filter,
+                'page' : page
             })
             
             return render(request, "network/index.html", {
                 'context' : 'Post shared!',
                 'color' : "green",
-                'page' : page,
+                'filter' : filter,
+                'page' : page
             })
 
         # exception handler for unforseen events
@@ -71,7 +81,7 @@ def index(request, page):
 
 
 # User profile page
-def user (request, id):
+def user (request, id, page = 1):
     
     # get the user's data
     try:    
@@ -79,7 +89,7 @@ def user (request, id):
     
     # if not successfull redirect to "homepage"
     except ObjectDoesNotExist:
-        return HttpResponseRedirect(reverse("index", kwargs = {"page" : "all"}))
+        return HttpResponseRedirect(reverse("index"))
     
     currently_following = False 
 
@@ -88,28 +98,32 @@ def user (request, id):
             currently_following = True
     
     return render(request, "network/user.html", {
+        #profile user will be used as filter (numeric) to fetch the relevant posts
         "profile_user" : profile_user,
         "currently_following" : currently_following,
+        "page" : page,
     })
 
 # this API will send post objects as JSON data
 # an argument needs to be provided. You can filter by: all, followed, user
 
-def posts (request, filter):
+def posts (request, filter, page):
 
-    message = ""
-
-    # handle anonymous user before it become a problem
-    if not request.user.is_authenticated:
-        filter = 'all'
-    
     # CASE #1: this will get all the posts in the database
     if filter == 'all':              
         posts = Post.objects.all()
     
     #CASE #2: only get the posts by followed users
     elif filter == 'followed':
-      
+
+        # handle case of Anonymous user by responding with error
+        if not request.user.is_authenticated:
+            return JsonResponse({
+                "status": "error", 
+                "alert_msg" : "Anonymous user isn't following any user"
+            },  status=400)
+
+        # filter the posts
         following = request.user.following.values_list("followed" , flat = True)
         posts = Post.objects.filter(poster__in = following)
 
@@ -117,17 +131,31 @@ def posts (request, filter):
     elif filter.isnumeric():
         posts = Post.objects.filter (poster = int(filter))
 
+    # CASE #4: wrong filter provided
     else:
-        message.append("invalid filter")
         return JsonResponse({
             "status": "error", 
-            "alert_msg" : message
+            "alert_msg" : "filter parameter is not valid"
         }, status=400)
     
-    # reverse chronological order. 
-    posts = posts.order_by("-timestamp").all()
+    # reverse chronological order and create paginator. 
+    posts_paginator = Paginator(posts.order_by("-timestamp").all(), PAGINATION_AMOUNT)
+    post_page = posts_paginator.get_page(page)
+    
+    #assemble posts data and other information
+    serialized_page = [post.serialize() for post in post_page]
+    payload = {
+        "info" : {
+            "post_count" : str(posts_paginator.count),
+            "pages" : posts_paginator.num_pages,
+            "has_previous" : post_page.has_previous(),
+            "has_next" : post_page.has_next(),
+            "this_page" : post_page.number,
+        },
+        "page" : serialized_page
+        }
 
-    return JsonResponse([post.serialize() for post in posts], safe=False)
+    return JsonResponse(payload, safe=False)
 
 
 # creates or deletes Following objects
@@ -201,7 +229,7 @@ def follow (request):
 # This is a catch-all function that redirects to the main index page with "all" as argument.
 # It is useful to process bad requests without necessarily throwing a 404. 
 def index_redirect (request):
-    return HttpResponseRedirect(reverse("index", kwargs={'page': "all"}))
+    return HttpResponseRedirect(reverse("index"))
 
 
 
@@ -223,7 +251,7 @@ def login_view(request):
         # Check if authentication successful
         if user is not None:
             login(request, user)
-            return HttpResponseRedirect(reverse("index_redirect"))
+            return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, "network/login.html", {
                 "message": "Invalid username and/or password."
@@ -234,7 +262,7 @@ def login_view(request):
 # THIS IS DITRIBUTION CODE 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("index_redirect"))
+    return HttpResponseRedirect(reverse("index"))
 
 # THIS IS DITRIBUTION CODE 
 def register(request):
