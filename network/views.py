@@ -3,7 +3,7 @@ from hashlib import new
 from http import HTTPStatus
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import JsonResponse
+from django.http import HttpResponseNotFound, JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
-from django.db.models import F
+from django.db.models import F, Case, When, Value
 
 
 
@@ -109,6 +109,14 @@ def user (request, id, page = 1):
 # this API will send post objects as JSON data
 # an argument needs to be provided. You can filter by: all, followed, user
 
+
+
+
+# TODO: I NEED TO ANNOTATE(EDITABLE = TRUE/FLASE (CONDITION))
+# PASSING THIS VALUE TO THE FRONTEND I COULD DETERMINE WHETHER TO RENDER A "EDIT" BUTTON OR NOT.
+
+#MAYBE THAT IS NOT A GOOD IDEA, BECAUSE THE CLIENT CAN STILL MESS WITH THE RESULT... PERHAPS THE CLIENT CAN CHECK IF USER.ID == POSTER.ID AND GENERATE THE BUTTON
+#LATER WHEN THE POST IS SUBMITTED TO BE EDITED WE CAN CHECK IF THE CLIENT HAS THE RIGHT TO EDIT OR NOT.
 def posts (request, filter, page):
 
     # CASE #1: this will get all the posts in the database
@@ -141,7 +149,7 @@ def posts (request, filter, page):
             "alert_msg" : "filter parameter is not valid"
         }, status=400)
     
-    posts
+    
     
     # reverse chronological order and create paginator. 
     posts_paginator = Paginator(posts.order_by("-timestamp").all(), PAGINATION_AMOUNT)
@@ -161,6 +169,22 @@ def posts (request, filter, page):
         }
 
     return JsonResponse(payload, safe=False)
+
+
+def edit (request, post_id):
+      
+    # get the requested post. Log error if not found  
+    post = Post.objects.get(pk = post_id)
+    if not post:
+        logger.error('no post found with the given id')
+        return HttpResponseRedirect(reverse('index'))
+        
+    if request.user.username == 'AnonymousUser':
+        logger.error('anonymous user tried to edit a post')
+        return HttpResponseRedirect(reverse('index'))
+    
+    return HttpResponseRedirect(reverse('user' , kwargs={"id" : request.user.id}))
+    
 
 
 # creates or deletes Following objects
@@ -222,7 +246,6 @@ def follow (request):
             
         old_following = Following.objects.filter(follower = following_user, followed = followed_user).all()
         old_following.delete()
-        print("succesfully deleted")
         
         return JsonResponse({
             "status" : "OK",

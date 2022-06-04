@@ -8,6 +8,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <input type="hidden" name="current-page" id="current-page" value={{page}}>
 
+        <script>
+            var sessionUserName = "{{user.username}}";
+            var userIsAuthenticated = "{{user.is_authenticated|lower}}"
+        </script>
         {% block script %}
         {% endblock %}
 
@@ -62,9 +66,15 @@
         <div class="body_centralcolumn">
             <div class="row justify-content-center">
                 <div class="col col-lg-6">
+
+
+
+                    {% comment "body" %} HTML FOR OTHER PAGES WILL BE INSERTED BELOW :{% endcomment %}
                     {% block body %}
                     {% endblock %}
 
+
+                    {% comment "" %} THE PAGINATOR WILL BE GENERATED IF A PAGE PARAMETER IS PROVIDED AS CONTEXT {% endcomment %}
                     {% if page %}
 
                     <nav aria-label="Page navigation">
