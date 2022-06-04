@@ -7,12 +7,12 @@ from django.http import HttpResponseNotFound, JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from .models import Following, User, Post
+from .models import Following, User, Post, Like
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
-from django.db.models import F, Case, When, Value
+from django.db.models import Case, Value, When
 
 
 
@@ -200,7 +200,6 @@ def edit (request, post_id):
     print("going to redirect")
     return HttpResponseRedirect(reverse('user' , kwargs={"id" : request.user.id}))
     
-
 # creates or deletes Following objects
 # returns a JSON response. 
 # if the response contains "status" : OK, javascript will change the behavious of the follow/unfollow button in the front end
@@ -266,7 +265,39 @@ def follow (request):
             "status" : "OK",
             "alert_msg" : f"{followed_user.username} has now {followed_user.followers.count()} follower(s)"
             }, status=201)
+
+
+#postId is selfexplainatory
+#likeStatus tells the current innerHTML of the like button (Like / Unlike)
+@login_required
+def like (request):
+       
+    # load PUT request body into "data"
+    try:
+        data = json.loads(request.body)
+    except Exception as e:
+        return JsonResponse ({"error" : str(e)}, safe=False)
     
+    post_id = data.get('postId')
+    innerHTML =  data.get('likeStatus')
+
+    # check if user already likes the post
+    alreadylikes = (request.user.likes.filter(post = post_id).count() > 0) == True
+    
+    # if already likes, remove like
+    if (alreadylikes):
+        l = Like.objects.get(post = post_id, user = request.user)
+        l.delete()
+        s = "deleted"
+    else:
+        p = Post.objects.get(pk = post_id)
+        l = Like(post = p, user = request.user)
+        l.save()
+        s= "created"
+        
+    return JsonResponse({"status" : s,
+                         "already likes" : str(alreadylikes),
+                         "like" : str(l)}, safe=False)
     
 # This is a catch-all function that redirects to the main index page with "all" as argument.
 # It is useful to process bad requests without necessarily throwing a 404. 

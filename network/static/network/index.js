@@ -26,17 +26,25 @@ document.addEventListener('DOMContentLoaded', function (){
 
     // listen for clicks on "edit" buttons or "cancel". 
     document.addEventListener('click', function(event){
-        hasEdit = event.target.classList.contains('edit');
-        hasCancelEdit = event.target.classList.contains('cancel-edit')
+        
+        // the postId will be useful in every function that will be called after
         postId = event.target.parentElement.id;
-
+        
+        // below are all the possible buttons we may want to react to:\\
+        target = event.target.classList
+        
         // call a function to display the correct form div while passing the id of the post to edit (in necessary)
-        if (hasEdit){
+        if (target.contains('edit')){
             displayEditForm(true, postId);
-        }else if(hasCancelEdit){
-            console.log("cancel edit")
+        }
+        
+        if(target.contains('cancel-edit')){
             displayEditForm(false, null);
         };
+
+       if (target.contains('like')){
+            likePost(postId);
+       }
 
     })
     
@@ -138,44 +146,6 @@ function getPost(filter, page){
 }
 
 
-// TODO: ADD NEW DEDICATED UNFOLLOW BUTTON
-// ADD DATASET TO FOLLOW AND UNFOLLOW BUTTONS
-// PASS FOLLOW OR UNFOLLOW AS ARGUMENT TO THIS FUNCTION ANT THAT WILL GIVE THE API INFO ABOUT WHAT TO DO
-// INITIALLY I WANTED TO USE THE SAME BUTTON TO FOLLOW/UNFOLLOW BUT IT WOULD BE EASY FOR A USER TO ACCIDENTALLY MESS UP
-function changeFollowStatus (userToFollow){
-    let button =  document.querySelector('#follow-unfollow');
-      
-    if (isNaN(userToFollow)){
-        console.log("userToFollow variable is not a number.");
-        alert("userToFollow variable is not a number.")
-        return false
-    }
-
-    const payload = {
-        "userToFollow" : userToFollow,
-        "operation" : button.innerHTML
-    }
-
-    fetch(`${domain}/follow`,{
-        method : 'post',
-        body : JSON.stringify(payload),
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        
-        if (button.innerHTML === "Follow"){
-            button.innerHTML = "Unfollow";
-        }
-        else {
-            button.innerHTML = "Follow";
-        }
-        
-    })
-
-    
-}
-
 
 function updatePaginator(filter, pageInfo){
     
@@ -228,4 +198,60 @@ function displayEditForm (bool, postId){
     }
     
     console.log(`post numer ${postId} will be edited`);
+}
+
+
+function changeFollowStatus (userToFollow){
+    let button =  document.querySelector('#follow-unfollow');
+      
+    if (isNaN(userToFollow)){
+        console.log("userToFollow variable is not a number.");
+        alert("userToFollow variable is not a number.")
+        return false
+    }
+
+    const payload = {
+        "userToFollow" : userToFollow,
+        "operation" : button.innerHTML
+    }
+
+    fetch(`${domain}/follow`,{
+        method : 'post',
+        body : JSON.stringify(payload),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        
+        if (button.innerHTML === "Follow"){
+            button.innerHTML = "Unfollow";
+        }
+        else {
+            button.innerHTML = "Follow";
+        }  
+    })
+}
+
+function likePost(postId){
+    console.log(`liked post ${postId}`);
+    let button = document.querySelector(`#like-${postId}`);
+    csrftoken = document.getElementsByName('csrfmiddlewaretoken')[0].value
+    console.log(csrftoken)
+
+    const payload = {
+        "postId" : postId,
+        "likeStatus" : button.innerHTML,
+    }
+
+    fetch(`${domain}/like`, {
+        method : 'put',
+        body : JSON.stringify(payload),
+        headers: { "X-CSRFToken": csrftoken },
+        credentials : 'same-origin',
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log(data)
+    })
+
 }
