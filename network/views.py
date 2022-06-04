@@ -19,7 +19,7 @@ from django.db.models import F, Case, When, Value
 import logging
 
 logger = logging.getLogger('django')
-PAGINATION_AMOUNT = 5
+PAGINATION_AMOUNT = 4
 
 
 # this is the main view of the website. 
@@ -82,7 +82,7 @@ def index(request,  filter='all', page = 1):
             return HttpResponse("unexpected exception occured, please inform an admin")
 
 
-# User profile page
+# Renders the User profile page
 def user (request, id, page = 1):
     
     # get the user's data
@@ -106,23 +106,14 @@ def user (request, id, page = 1):
         "page" : page,
     })
 
-# this API will send post objects as JSON data
-# an argument needs to be provided. You can filter by: all, followed, user
 
-
-
-
-# TODO: I NEED TO ANNOTATE(EDITABLE = TRUE/FLASE (CONDITION))
-# PASSING THIS VALUE TO THE FRONTEND I COULD DETERMINE WHETHER TO RENDER A "EDIT" BUTTON OR NOT.
-
-#MAYBE THAT IS NOT A GOOD IDEA, BECAUSE THE CLIENT CAN STILL MESS WITH THE RESULT... PERHAPS THE CLIENT CAN CHECK IF USER.ID == POSTER.ID AND GENERATE THE BUTTON
-#LATER WHEN THE POST IS SUBMITTED TO BE EDITED WE CAN CHECK IF THE CLIENT HAS THE RIGHT TO EDIT OR NOT.
+# Responds to AJAX request -> Sends post back as JSON data
+# You must filter by: all, followed, userid # AND provide a page #
 def posts (request, filter, page):
 
     # CASE #1: this will get all the posts in the database
     if filter == 'all':              
         posts = Post.objects.all()
-        print(posts)
     
     #CASE #2: only get the posts by followed users
     elif filter == 'followed':
@@ -150,42 +141,65 @@ def posts (request, filter, page):
         }, status=400)
     
     
-    
-    # reverse chronological order and create paginator. 
+    # create paginator with reverse chronological order. Then get the requested page from the paginator.
     posts_paginator = Paginator(posts.order_by("-timestamp").all(), PAGINATION_AMOUNT)
     post_page = posts_paginator.get_page(page)
     
-    #assemble posts data and other information
+    #prepare INFO + POST DATA for transmission
     serialized_page = [post.serialize() for post in post_page]
-    payload = {
-        "info" : {
+    info = {
             "post_count" : str(posts_paginator.count),
             "pages" : posts_paginator.num_pages,
             "has_previous" : post_page.has_previous(),
             "has_next" : post_page.has_next(),
             "this_page" : post_page.number,
-        },
-        "page" : serialized_page
         }
-
-    return JsonResponse(payload, safe=False)
-
-
-def edit (request, post_id):
-      
-    # get the requested post. Log error if not found  
-    post = Post.objects.get(pk = post_id)
-    if not post:
-        logger.error('no post found with the given id')
-        return HttpResponseRedirect(reverse('index'))
-        
-    if request.user.username == 'AnonymousUser':
-        logger.error('anonymous user tried to edit a post')
-        return HttpResponseRedirect(reverse('index'))
     
+    # send data
+    return JsonResponse({"info" : info, "page" : serialized_page}, safe=False)
+
+
+# this view only accepts POST requests. 
+# its only purpose is to overwrite old posts with new content
+@login_required
+def edit (request, post_id):
+
+    print("request arrived")
+    # check correct request method
+    if not request.method == "POST":    
+        error = f"received {request.method} request. Type must be: POST"
+        logger.error(error)
+        return HttpResponse(error)
+    
+    # get the requested post.  
+    p = Post.objects.get(pk = post_id)
+    print("p element created")
+        
+    # raise Exception if post not found. 
+    # The post ID came from a fetch request from Javascript to the post() function, so there is no reason why the post now doesn't exist. 
+    if not p:
+        error = f"post with ID: {post_id} doesn't exist"
+        logger.error(error)
+        raise  Exception(error)
+    
+    # swap old content with the new
+    p.body = request.POST.get("text")
+    
+    # Run tests
+    try:
+        assert p.is_valid_post()
+        assert p.poster == request.user
+        p.save()
+        print("p saved")
+    
+    # respond with error if tests fail    
+    except Exception as e:
+        logger.error(e)
+        return HttpResponse (e)
+    
+    print("going to redirect")
     return HttpResponseRedirect(reverse('user' , kwargs={"id" : request.user.id}))
     
-
 
 # creates or deletes Following objects
 # returns a JSON response. 
@@ -216,6 +230,7 @@ def follow (request):
             "status" : "error",
             "alert_msg" : "can't follow/unfollow yourself"
             }, status=400)
+    
     
     alreadyfollows = (following_user.following.filter(followed = followed_user).count() > 0) == True
     
@@ -253,7 +268,6 @@ def follow (request):
             }, status=201)
     
     
-    
 # This is a catch-all function that redirects to the main index page with "all" as argument.
 # It is useful to process bad requests without necessarily throwing a 404. 
 def index_redirect (request):
@@ -264,7 +278,7 @@ def index_redirect (request):
 
 
 
-# ---------- EVERYTHING BELOW THIS LINE IS DITRIBUTION CODE. ALL CREDIT GOES TO THE CS_50 TEAM ---------
+# ---------- EVERYTHING BELOW THIS LINE IS DITRIBUTION CODE. ALL CREDIT GOES TO THE CS_50 TEAM ---------------- #
 
 # THIS IS DITRIBUTION CODE 
 def login_view(request):
