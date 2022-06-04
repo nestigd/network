@@ -1,11 +1,12 @@
-// url to the posts API... TODO: find a way to make this dynamic -----------------------------------
+// a sessionUserName variable is declared inside layout.html Django template.
+
+// domain variable that will be used for URL construction
 const domain = window.parent.location.origin;
-// by default set page to the first one
 
 // Wait for document to load 
 document.addEventListener('DOMContentLoaded', function (){
 
-    // the filter variable is porvided by the url. It can be 'all/pagexx' or 'followed/pagexx' 
+    // the filter variable is provided in the url. It can be 'all/page##', 'followed/page##' or '${userid}'/page##
     let filter = document.querySelector('#filter').value;
 
     // The page is provided in the HTML by Django at first. It will be later updated by JS.
@@ -23,8 +24,22 @@ document.addEventListener('DOMContentLoaded', function (){
         }
     }
 
-    document.addEventListener
+    // listen for clicks on "edit" buttons or "cancel". 
+    document.addEventListener('click', function(event){
+        hasEdit = event.target.classList.contains('edit');
+        hasCancelEdit = event.target.classList.contains('cancel-edit')
+        postId = event.target.parentElement.id;
 
+        // call a function to display the correct form div while passing the id of the post to edit (in necessary)
+        if (hasEdit){
+            displayEditForm(true, postId);
+        }else if(hasCancelEdit){
+            console.log("cancel edit")
+            displayEditForm(false, null);
+        };
+
+    })
+    
 });
 
 
@@ -42,27 +57,57 @@ function makePostDiv(post) {
     const post_author_link = document.createElement('a')
     const post_created = document.createElement('span');
     const post_text = document.createElement('div');
-    const post_like = document.createElement('button')
+    //const post_likenum = document.createElement('span');
 
-    //populate parent and children with data from the parsed post
-    post_div.id = `post_${post.id}`;
+
+    //populate parent 
+    post_div.id = `${post.id}`;
     post_div.dataset.user_id = post.poster_id;
     post_div.className = "post-div";
+
+    //populate children with data from the parsed post
     post_author_link.innerHTML = post.poster;
     post_author_link.href = `${domain}/user/${post.poster_id}`;
-    post_author_link.className = "post-span"
+    post_author_link.className = "post-span";
     post_created.innerHTML = post.timestamp;
-    post_created.className = "post-span"
+    post_created.className = "post-span";
     post_text.innerHTML = post.body;
-    post_text.className = "post-text"
-    post_like.className = "btn btn-secondary";
-    post_like.id = `like_button_${post.id}`;
-    post_like.innerHTML = "0 Likes";
+    post_text.className = `post-text`;
+    post_text.id = `post-${post.id}-text`;
 
+    //post_likenum.innerHTML = "0 likes (W.I.P.)";
+    
     //this adds the new elements to the document
     post_author.append(post_author_link);
-    post_div.append(post_author, post_created, post_text, post_like);
+    post_div.append(post_author, post_created, post_text,);
     document.querySelector('#post_container').append(post_div);
+
+    if (userIsAuthenticated != "false"){
+        
+        // conditional child element "EDIT" or "LIKE" 
+        if (post.poster == sessionUserName){
+            
+            const post_edit = document.createElement('button');
+
+            post_edit.className = "btn btn-secondary edit";
+            post_edit.innerHTML = "Edit";
+        
+            post_div.append(post_edit);
+
+
+        }else{
+            const post_like = document.createElement('button');
+
+            post_like.className = "btn btn-primary like";
+            post_like.id = `like-${post.id}`;
+            post_like.innerHTML = "Like";
+
+            post_div.append(post_like);
+
+        }
+    }
+
+
 }
 
 // this function sends an AJAX request to the server and receives a list of "post" objects back
@@ -157,4 +202,30 @@ function updatePaginator(filter, pageInfo){
         document.querySelector("#next-page-link").href = `${domain}/${urlbuilder}/page${(pageInfo.this_page) + 1}`;
     }
 
+}
+
+function displayEditForm (bool, postId){
+    
+    if (bool === true){
+        
+        // hide new post form if it exists
+        if(document.querySelector("#new-post-form-container")){
+            document.querySelector("#new-post-form-container").style.display = 'none';
+        }
+        // display edit post form while preparing url parameters and displaying the old text
+        document.querySelector("#edit-post-form-container").style.display = 'block';
+        document.querySelector('#edit_post_form').action = `${domain}/edit/${postId}`;
+        document.querySelector('#edit_post_text').value = document.querySelector(`#post-${postId}-text`).innerHTML;
+    }else{
+        
+        // display new post form if it exists
+        if(document.querySelector("#new-post-form-container")){
+            document.querySelector("#new-post-form-container").style.display = 'block';
+        }
+        // hide the edit form. resetting its values is not necessary as they will be overwritten if the function gets called again.
+        document.querySelector("#edit-post-form-container").style.display = 'none';
+        
+    }
+    
+    console.log(`post numer ${postId} will be edited`);
 }

@@ -15,10 +15,9 @@ urlpatterns = [
     path("<str:filter>", views.index, name="index"),
     path("<str:filter>/page<int:page>", views.index, name="index"),
     
+    path("edit/<int:post_id>", views.edit, name="edit"),
 
     
-
-
     #API routes
     path("posts/<slug:filter>&<int:page>", views.posts, name="posts"),
     path("follow", views.follow, name="follow"),

@@ -12,6 +12,23 @@
     <span><h4>Followers: {{profile_user.followers.count}}</h4></span> 
     <span><h4>Following: {{profile_user.following.count}}</h4></span>
 
+    {% comment "EDIT FROM" %} THE EDIT FORM WILL BE HIDDEN BY DEFAULT AND DISPLAYED WITH JAVASCRIPT{% endcomment %}
+    <div id= 'edit-post-form-container' class='form-container' style = "display : none" >
+
+        <h3>Edit post:</h3>
+
+        <form id= 'edit_post_form' action = "#" method= 'post' >
+
+            {% csrf_token %}
+            <input type="hidden" id="edit_post_id" name="id" value=''>
+            <textarea id="edit_post_text" name='text' class='form-text' placeholder="think here... think hard" required></textarea>
+            <button id="edit_post_share" class="btn btn-primary form-btn">Submit changes</button>
+            <button id="edit_post_share" class="btn btn-secondary form-btn cancel-edit" onclick='return false'>cancel</button>
+
+        </form>
+
+    </div>
+
 
     {% if user.is_authenticated and currently_following == True and user.id != profile_user.id %}    
         <button class="btn btn-primary" id="follow-unfollow">Unfollow</button>  
