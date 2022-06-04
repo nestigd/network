@@ -276,7 +276,7 @@ def index_redirect (request):
 
 
 
-
+    
 
 # ---------- EVERYTHING BELOW THIS LINE IS DITRIBUTION CODE. ALL CREDIT GOES TO THE CS_50 TEAM ---------------- #
 
