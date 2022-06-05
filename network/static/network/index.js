@@ -26,23 +26,29 @@ document.addEventListener('DOMContentLoaded', function (){
 
     // listen for clicks on "edit" buttons or "cancel". 
     document.addEventListener('click', function(event){
-        hasEdit = event.target.classList.contains('edit');
-        hasCancelEdit = event.target.classList.contains('cancel-edit')
+        
+        // the postId will be useful in every function that will be called after
         postId = event.target.parentElement.id;
-
+        
+        // below are all the possible buttons we may want to react to:\\
+        target = event.target.classList
+        
         // call a function to display the correct form div while passing the id of the post to edit (in necessary)
-        if (hasEdit){
+        if (target.contains('edit')){
             displayEditForm(true, postId);
-        }else if(hasCancelEdit){
-            console.log("cancel edit")
+        }
+        
+        if(target.contains('cancel-edit')){
             displayEditForm(false, null);
         };
+
+       if (target.contains('like')){
+            likePost(postId);
+       }
 
     })
     
 });
-
-
 
 // this function makes a new DIV element and all its children containing the post information
 function makePostDiv(post) {
@@ -82,13 +88,16 @@ function makePostDiv(post) {
     post_div.append(post_author, post_created, post_text,);
     document.querySelector('#post_container').append(post_div);
 
-    if (userIsAuthenticated != "false"){
-        
-        // conditional child element "EDIT" or "LIKE" 
+    //users need to be authenticated to edit or like posts
+    if (userIsAuthenticated){
+
+        // "EDIT" and "LIKE" butttons are mutually exclusive. User cannot like his own post, or edit someone else's 
         if (post.poster == sessionUserName){
             
+            // generate EDIT button
             const post_edit = document.createElement('button');
-
+            post_div.append(post_edit);
+            
             post_edit.className = "btn btn-secondary edit";
             post_edit.innerHTML = "Edit";
         
@@ -96,13 +105,18 @@ function makePostDiv(post) {
 
 
         }else{
+            // generate LIKE button
             const post_like = document.createElement('button');
+            post_div.append(post_like);
 
             post_like.className = "btn btn-primary like";
             post_like.id = `like-${post.id}`;
+            
+            // "Like" or "Unlike" depending on the information store in the database.
             post_like.innerHTML = "Like";
-
-            post_div.append(post_like);
+            if (post.liked){
+                post_like.innerHTML = "Unlike";
+            }
 
         }
     }
@@ -136,46 +150,6 @@ function getPost(filter, page){
 
     });
 }
-
-
-// TODO: ADD NEW DEDICATED UNFOLLOW BUTTON
-// ADD DATASET TO FOLLOW AND UNFOLLOW BUTTONS
-// PASS FOLLOW OR UNFOLLOW AS ARGUMENT TO THIS FUNCTION ANT THAT WILL GIVE THE API INFO ABOUT WHAT TO DO
-// INITIALLY I WANTED TO USE THE SAME BUTTON TO FOLLOW/UNFOLLOW BUT IT WOULD BE EASY FOR A USER TO ACCIDENTALLY MESS UP
-function changeFollowStatus (userToFollow){
-    let button =  document.querySelector('#follow-unfollow');
-      
-    if (isNaN(userToFollow)){
-        console.log("userToFollow variable is not a number.");
-        alert("userToFollow variable is not a number.")
-        return false
-    }
-
-    const payload = {
-        "userToFollow" : userToFollow,
-        "operation" : button.innerHTML
-    }
-
-    fetch(`${domain}/follow`,{
-        method : 'post',
-        body : JSON.stringify(payload),
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        
-        if (button.innerHTML === "Follow"){
-            button.innerHTML = "Unfollow";
-        }
-        else {
-            button.innerHTML = "Follow";
-        }
-        
-    })
-
-    
-}
-
 
 function updatePaginator(filter, pageInfo){
     
@@ -228,4 +202,71 @@ function displayEditForm (bool, postId){
     }
     
     console.log(`post numer ${postId} will be edited`);
+}
+
+function changeFollowStatus (userToFollow){
+    let button =  document.querySelector('#follow-unfollow');
+      
+    if (isNaN(userToFollow)){
+        console.log("userToFollow variable is not a number.");
+        alert("userToFollow variable is not a number.")
+        return false
+    }
+
+    const payload = {
+        "userToFollow" : userToFollow,
+        "operation" : button.innerHTML
+    }
+
+    fetch(`${domain}/follow`,{
+        method : 'post',
+        body : JSON.stringify(payload),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        
+        if (button.innerHTML === "Follow"){
+            button.innerHTML = "Unfollow";
+        }
+        else {
+            button.innerHTML = "Follow";
+        }  
+    })
+}
+
+function likePost(postId){
+    // get CSRF token from helper in HTML header    
+    csrftoken = document.getElementsByName('csrfmiddlewaretoken')[0].value
+
+    // select the correct like button
+    let button = document.querySelector(`#like-${postId}`);
+
+    // assemble data
+    const payload = {
+        "postId" : postId,
+        "likeStatus" : button.innerHTML,
+    }
+
+    // send put request
+    fetch(`${domain}/like`, {
+        method : 'put',
+        body : JSON.stringify(payload),
+        headers: { "X-CSRFToken": csrftoken },
+        credentials : 'same-origin',
+    })
+    .then(response => response.json())
+    .then(data => {
+        
+        console.log(data["status"]);
+
+        // change button content after receiving reply
+        if (data["status"] === "liked"){
+            button.innerHTML = "Unlike";
+        
+        }else if (data["status"] === "unliked"){
+            button.innerHTML = "Like";
+        }
+    })
+
 }

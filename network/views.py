@@ -1,3 +1,4 @@
+from distutils.log import error
 import json
 from hashlib import new
 from http import HTTPStatus
@@ -7,12 +8,12 @@ from django.http import HttpResponseNotFound, JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from .models import Following, User, Post
+from .models import Following, User, Post, Like
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
-from django.db.models import F, Case, When, Value
+from django.db.models import Case, Value, When
 
 
 
@@ -146,7 +147,8 @@ def posts (request, filter, page):
     post_page = posts_paginator.get_page(page)
     
     #prepare INFO + POST DATA for transmission
-    serialized_page = [post.serialize() for post in post_page]
+    serialized_page = [post.serialize(request.user) for post in post_page]
+     
     info = {
             "post_count" : str(posts_paginator.count),
             "pages" : posts_paginator.num_pages,
@@ -200,7 +202,7 @@ def edit (request, post_id):
     print("going to redirect")
     return HttpResponseRedirect(reverse('user' , kwargs={"id" : request.user.id}))
     
-
+    
 # creates or deletes Following objects
 # returns a JSON response. 
 # if the response contains "status" : OK, javascript will change the behavious of the follow/unfollow button in the front end
@@ -266,8 +268,49 @@ def follow (request):
             "status" : "OK",
             "alert_msg" : f"{followed_user.username} has now {followed_user.followers.count()} follower(s)"
             }, status=201)
+
+#postId is selfexplainatory
+#likeStatus tells the current innerHTML of the like button (Like / Unlike)
+@login_required
+def like (request):
+       
+    # load PUT request body into "data"
+    try:
+        data = json.loads(request.body)
+    except Exception as e:
+        return JsonResponse ({"error" : str(e)}, safe=False)
     
     
+    
+    post_id = data.get('postId')
+    innerHTML =  data.get('likeStatus')
+
+    # check if user already likes the post
+    alreadylikes = (request.user.likes.filter(post = post_id).count() > 0) == True
+    
+    # if already likes, remove like
+    if alreadylikes:        # ----------------------------------------------- # and innerHTML == "Unlike":
+        l = Like.objects.get(post = post_id, user = request.user)
+        l.delete()
+        s = "unliked"
+        
+    elif not alreadylikes and innerHTML == "Like":
+        p = Post.objects.get(pk = post_id)
+        l = Like(post = p, user = request.user)
+        l.save()         
+        s= "liked"
+        
+    else:
+        s= "error"
+        error = f"button action is {innerHTML} but user like status = ({alreadylikes})"
+        logger.error(error)
+        raise Exception(error)
+        
+    return JsonResponse({"status" : s,
+                         "already likes" : str(alreadylikes),
+                         "like" : str(l)}, safe=False)    
+    
+     
 # This is a catch-all function that redirects to the main index page with "all" as argument.
 # It is useful to process bad requests without necessarily throwing a 404. 
 def index_redirect (request):
