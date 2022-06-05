@@ -18,7 +18,8 @@ class Post(models.Model):
     def __str__ (self):
         return f"{self.id} - {self.poster.username} - {self.body[:8]}"
 
-    def serialize(self):
+    # the serializer takes an argumen USER so it can check if the post was liked by the user or not
+    def serialize(self, user):
         return {
             "id" : self.id,
             "poster" : self.poster.username,
@@ -26,6 +27,7 @@ class Post(models.Model):
             "body" : self.body,
             "timestamp": self.timestamp,
             "edited_on" : self.edited_on,
+            "liked" : (Like.objects.filter(post = self, user = user).count() > 0)
         }
 
     def is_valid_post (self):
