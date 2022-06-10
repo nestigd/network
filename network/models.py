@@ -20,6 +20,13 @@ class Post(models.Model):
 
     # the serializer takes an argumen USER so it can check if the post was liked by the user or not
     def serialize(self, user):
+        
+        if not user.is_authenticated:
+            liked= False
+            
+        else:
+            liked = Like.objects.filter(post = self, user = user).count() > 0
+                
         return {
             "id" : self.id,
             "poster" : self.poster.username,
@@ -27,7 +34,7 @@ class Post(models.Model):
             "body" : self.body,
             "timestamp": self.timestamp,
             "edited_on" : self.edited_on,
-            "liked" : (Like.objects.filter(post = self, user = user).count() > 0)
+            "liked" : liked
         }
 
     def is_valid_post (self):

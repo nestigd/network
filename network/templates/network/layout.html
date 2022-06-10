@@ -1,108 +1,105 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        {% csrf_token id="csrf-helper" %}
-        <title>{% block title %}Social Network{% endblock %}</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-        <link href="{% static 'network/styles.css' %}" rel="stylesheet">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <input type="hidden" name="current-page" id="current-page" value={{page}}>
-
-        <script>
-            var sessionUserName = "{{user.username}}";
-            var userIsAuthenticated = "{{user.is_authenticated|lower}}"
-        </script>
-        {% block script %}
-        {% endblock %}
+  <head>
+    {% csrf_token id="csrf-helper" %}
+    <title>{% block title %}Social Network{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+      />
+      <link href="{% static 'network/styles.css' %}" rel="stylesheet" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <input
+      type="hidden"
+      name="current-page"
+      id="current-page"
+      value="{{page}}"
+      />
+      
+      <script>
+        var sessionUserName = "{{user.username}}";
+        var userIsAuthenticated = "{{user.is_authenticated|lower}}";
+      </script>
+      {% block script %} {% endblock %}
     </head>
-
-    
     <body>
-        {% comment %}
-        HERE IS THE NAVBAR
-        {% endcomment %}
-        <nav id="navbar" class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Network</a>
-          
-            <div>
-              <ul class="navbar-nav mr-auto">
-                {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'user' user.id %}"><strong>{{ user.username }}</strong></a>
-                    </li>
+      <div class="pagestyle">
+        <div class="main">
+          {% comment %} navbar {% endcomment %}
+          <nav id="navbar" class="navbar navbar-expand-lg navbar-light bg-light">
+          <a class="navbar-brand" href="#">Network</a>
+          <div>
+            <ul class="navbar-nav mr-auto">
+              {% if user.is_authenticated %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'user' user.id %}"
+                  ><strong>{{ user.username }}</strong></a
+                  >
+                </li>
                 {% endif %}
                 <li class="nav-item">
-                            <a id="posts_all" class="nav-link" href="{% url 'index' 'all'%}">All Posts</a>
+                  <a id="posts_all" class="nav-link" href="{% url 'index' 'all'%}"
+                  >All Posts</a
+                  >
                 </li>
                 {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a id="posts_following" class="nav-link" href="{% url 'index' 'followed'%}">Following</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
-                    </li>
+                <li class="nav-item">
+                  <a
+                  id="posts_following"
+                  class="nav-link"
+                  href="{% url 'index' 'followed'%}"
+                  >Following</a
+                  >
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                </li>
                 {% else %}
-                    <li class="nav-item">
-                        <a id="login" class="nav-link" href="{% url 'login' %}">Log In</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">Register</a>
-                    </li>
-                {% endif %}
-              </ul>
-            </div>
-          </nav>
-
-          {% comment "" %}THIS DIV WILL SHOW A MESSAGE PASSED FROM VIEWS.PY. IT ALSO SUPPORTS A 
-          BACKGROUND COLOR, IT SHOULD USUALLY BE RED OR GREEN{% endcomment %}
-          <div style = "background-color : {{color}}"> {{context}} </div>
-
-        {% comment %}
-          DIDN'T WANT THE BODY TO GO FROM SIDE TO SIDE WHEN IN FULLSCREEN MODE, SO I PLACED THE BODY BLOCK INSIDE A CONTAINER
-          THE CONTAINER IS RESPONSIVE AND WILL BECOME 100% WIDE AT A LARGE BREAKPOINT.
-        {% endcomment %}
-
-        <div class="body_centralcolumn">
-            <div class="row justify-content-center">
-                <div class="col col-lg-6">
-
-
-
-                    {% comment "body" %} HTML FOR OTHER PAGES WILL BE INSERTED BELOW :{% endcomment %}
-                    {% block body %}
-                    {% endblock %}
-
-
-                    {% comment "" %} THE PAGINATOR WILL BE GENERATED IF A PAGE PARAMETER IS PROVIDED AS CONTEXT {% endcomment %}
-                    {% if page %}
-
-                    <nav aria-label="Page navigation">
-
-                        <ul id="paginator" class="pagination">
-
-                            <li class="page-item" id="previous-page" >
-                                <a class="page-link" id="previous-page-link" href="#">Previous</a></li>
-
-                            <li class="page-item">
-                                <a class="page-link" id="current-page-link" href="#">{{page}}</a>
-                            </li>
-                            
-                            <li class="page-item" id="next-page">
-                                <a class="page-link" id="next-page-link" href="#">Next</a>
-                            </li>
-                        </ul>
-
-                    </nav>
-                    {% endif %}
-
-
-                </div>
-            </div>
-        </div>
+                <li class="nav-item">
+                  <a id="login" class="nav-link" href="{% url 'login' %}">Log In</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'register' %}">Register</a>
+                </li>
+              {% endif %}
+            </ul>
+          </div>
+        </nav>
         
+        {% comment %} message bar {% endcomment %}
+        <div style="background-color : {{color}}">{{context}}</div>
+        
+        
+        <main class="content"> 
+          {% block body %} 
+          {% endblock %} 
+        </main>
+        <footer>
+          {% comment %}s {% endcomment %} 
+          {% if page %}
+          <nav aria-label="Page navigation">
+            <ul id="paginator" class="pagination">
+              <li class="page-item" id="previous-page">
+                <a class="page-link" id="previous-page-link" href="#">Previous</a>
+              </li>
+              
+              <li class="page-item">
+                <a class="page-link" id="current-page-link" href="#">{{page}}</a>
+              </li>
+              
+              <li class="page-item" id="next-page">
+                <a class="page-link" id="next-page-link" href="#">Next</a>
+              </li>
+            </ul>
+          </nav>
+          {% endif %}
+        </footer>
 
-
-    </body>
-
-</html>
+      </div>
+    </div>
+  </body>
+  </html>
+  
