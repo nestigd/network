@@ -46,18 +46,41 @@ body {
 .main-container{
   display: flex;
   justify-content: start;
+  align-content: ;
   gap: 15px;
   flex-wrap: wrap;
 }
 
 .display{
-  background-color: pink;
+  background-color: rgb(181, 203, 222);
   padding : 15px;
-  flex: 1 1 300px;
+  flex: 15 1 300px;
 }
 
 .create{
-  background-color: aquamarine;
-  align-self: center;
-  flex: 0 0 300px;
+  padding: 20px;
+  background-color: #173b55;
+  align-self: stretch;
+  flex: 1 1 300px;
+  order: -1
+}
+
+.create > div > h3 {
+  color: white;
+}
+
+#post-container{
+  display: flex;
+  gap: 1%;
+  flex-wrap: wrap;
+}
+
+.post-div{
+  margin: 2px 0px;
+  padding: 8px;
+  flex: 0 1 290px
+}
+
+button {
+  margin: 5px 0px ;
 }

@@ -86,7 +86,7 @@ function makePostDiv(post) {
     //this adds the new elements to the document
     post_author.append(post_author_link);
     post_div.append(post_author, post_created, post_text,);
-    document.querySelector('#post_container').append(post_div);
+    document.querySelector('#post-container').append(post_div);
 
     //users need to be authenticated to edit or like posts
     if (userIsAuthenticated){
@@ -133,7 +133,7 @@ function getPost(filter, page){
     .then(data => {
     
         // empty the post container in case it is already populated
-        document.querySelector('#post_container').innerHTML = "";
+        document.querySelector('#post-container').innerHTML = "";
 
         // debugging helpers
         console.log(data["info"]);
