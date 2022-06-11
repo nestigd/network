@@ -20,7 +20,7 @@ from django.db.models import Case, Value, When
 import logging
 
 logger = logging.getLogger('django')
-PAGINATION_AMOUNT = 12
+PAGINATION_AMOUNT = 8
 
 
 # this is the main view of the website. 

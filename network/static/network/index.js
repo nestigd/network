@@ -28,11 +28,16 @@ document.addEventListener('DOMContentLoaded', function (){
     document.addEventListener('click', function(event){
         
         // the postId will be useful in every function that will be called after
-        postId = event.target.parentElement.id;
+        // some times the element could not have an ID
+        try{
+            postId = event.target.parentElement.id;
+        }catch(error){
+            return false;
+        }
         
-        // below are all the possible buttons we may want to react to:\\
-        target = event.target.classList
-        
+        // below are all the possible buttons we may want to react to:
+        let target = event.target.classList        
+         
         // call a function to display the correct form div while passing the id of the post to edit (in necessary)
         if (target.contains('edit')){
             displayEditForm(true, postId);
