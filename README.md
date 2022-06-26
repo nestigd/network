@@ -2,11 +2,12 @@
 CS50W PROJECT NUMBER 4.
 https://cs50.harvard.edu/web/2020/projects/4/network/
 
-This is a very simplified social network web app that I'm using to get some practice with Django.
-The backbone structure of the website already came in the form of distribution code, so I'm really only adding the view - model - controller part to this.
+A bare bones social network app.
+Part of CS50W course
 
 
-TO DO LIST:
+
+TO DO LIST / REQUIREMENTS:
 
 DONE -- New Post: Users who are signed in should be able to write a new text-based post by filling in text into a text area and then clicking a button to submit the post.
 The screenshot at the top of this specification shows the “New Post” box at the top of the “All Posts” page. You may choose to do this as well, or you may make the “New Post” feature a separate page.
